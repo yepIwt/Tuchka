@@ -1,18 +1,24 @@
 import os
+import modules
 from vk_api import VkApi
 from vk_api import VkUpload
 from vk_api.utils import get_random_id 
 
-class RatherCloudy(object):
 
-	__slots__ = ('session','vk','linkmaster','folders', 'client','files')
+class RatherCloudy(modules.withfolder):
 
-	def __init__(self, token):
+	__slots__ = ('session','vk','linkmaster','folders', 'client','files','withfolders')
+
+	def __init__(self, token, dir=None):
 		self.session = VkApi(token=token, api_version=5.103)
 		self.client = self.session.get_api()
 		self.folders = []
 		self.linkmaster = self.client.users.get()[0]['id']
-
+		if dir == None:
+			super().__init__(os.getcwd())
+		else:
+			super().__init__(dir)
+		
 	def send_message(self,message: str,attachment=None, keyboard=None):
 		"""
 		:param user_id: Кому отправлять(id)
@@ -29,34 +35,18 @@ class RatherCloudy(object):
             attachment="doc543325423_556356447",
         )
 
-	def get_docs(self, count: int, offset: int, type: int):
-		"""
-     	:param count: Сколько документов вернуть
-     	:param offset: Оффсет,че
-     	:param type: Тип документа (https://vk.com/dev/docs.get)
-     	:param owner_id: Чьи документы вернуть
-     	"""
-		docs = self.client.docs.get(
-     		count=count,
-     		offset=offset,
-     		type=type,
-     		owner_id=self.linkmaster,
-     		)
-		return docs
-
-	def new_folder(self, title: str):
+	def new_folder(self, title):
 		"""
 		:param title: Название папки
 		"""
-		id = [self.client.messages.createChat(
+		id = self.client.messages.createChat(
 			user_ids=self.linkmaster,
 			title=title,
-			)]
-		temp = [str(id)+":"+str(title)]
-		self.folders.append(temp)
+			)
+		self.folders.append([str(id) + ':' + str(title)])
 		self.folders[len(self.folders)-1].append([])
 		return self.folders
-	#ne rabotaet
+
 	def del_folder(self,title:str):
 		self.client.messages.removeChatUser(
 			chat_id=self.folders[folders.index(title)],
@@ -69,11 +59,11 @@ class RatherCloudy(object):
 		return True
 
 	def save_cfg(self):
-		self.folders = [['5:Gays',[]]]
 		with open('config.cfg','w') as f:
 			f.write('Folders:\n')
 			for folder in self.folders:
-				f.write(self.wee('',folder)+":"+self.wee('name',folder)+ '\n')
+				this = str(self.wee('id',folder)) + ':' + self.wee('name',folder)
+				f.write(this + '\n')
 			f.close()
 
 	def read_cfg(self):
@@ -82,22 +72,26 @@ class RatherCloudy(object):
 			for line in f:
 				self.folders.append([line[:line.index('\n')]])
 				self.folders[len(self.folders)-1].append([])
-			self.folders.remove(self.folders[0])
+			self.folders.remove(self.folders[0]) 
 		else:
-			print("No cfgs")
-			print("We have to create new folder")
-			print("Title: ",end= "")
-			self.new_folder(input())
-
+			print('No cfgs')
+			new_folder(str(input('We will create new folder on your cloud. Tell me name')))
 		return self.folders
-
+	
 	def wee(self,type,folder):
 		if type == 'name':
 			return folder[0][folder[0].index(':')+1:]
+		elif type == 'files':
+			return folder[1]
+		elif type == 'name2':
+			tmp = []
+			for obj in folder:
+				tmp.append(self.wee('name',obj))
+			return tmp
 		else:
 			return folder[0][:folder[0].index(':')]
 
-	def check_folders(self):
+	def check_folders_by_name(self):
 		for folder in self.folders:
 			try:
 				cur_cloud = self.client.messages.getChat(chat_id=self.wee('id',folder))['title']
@@ -109,11 +103,11 @@ class RatherCloudy(object):
 			else:
 				self.client.messages.editChat(chat_id=int(self.wee('',folder)),title=self.wee('name',folder))
 				print('Title changed:', cur_cloud,'-->',self.wee('name',folder))
+				print('Synced:', folder[0])
 				
 
-	def get_filles_from_folder(self):
-		for folder in self.folders:
-			print('This is', folder[0], self.client.messages.getHistoryAttachments(peer_id=2000000000+int(self.wee('id',folder)),media_type='doc'))
+	def get_filles_from_folder(self,folder):
+		return self.client.messages.getHistoryAttachments(peer_id=2000000000+int(self.wee('id',folder)),media_type='doc')
 
 	def send(self,file,title:str):
 		"""Загрузка файла
@@ -126,7 +120,17 @@ class RatherCloudy(object):
 				print('You don\'t have any folders')
 			else:
 				upload_machine = VkUpload(self.client)
-				upload_machine.document(file,title=title)['id']
-#cloud = RatherCloudy("")
-#print(cloud.read_cfg())
-#cloud.get_filles_from_folder()
+				print(upload_machine.document(file,title=title)['id'])
+	
+	def download_folder(self,title): #disabled
+		for folder in self.folders:
+			if self.wee('name',folder) == title:
+				files = self.get_filles_from_folder(folder)
+				print(files)
+
+
+#cloud = RatherCloudy("token",'dir')
+#cloud.read_cfg()
+#cloud.check_folders_by_name()
+#cloud.check_folders_from_cloud(cloud.folders)
+#cloud.save_cfg()
