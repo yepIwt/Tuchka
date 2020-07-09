@@ -6,6 +6,7 @@ import os
 import modules
 from vk_api import VkApi
 from vk_api import VkUpload
+from vk_api import exceptions
 from vk_api.utils import get_random_id
 
 
@@ -19,6 +20,7 @@ class RatherCloudy(object):
 		self.sections = []
 		self.masterid = self.client.users.get()[0]['id']
 
+#DEV#
 	def cfg(self,move=None):
 		if move: # сохранить
 			with open('config.cfg','w') as f:
@@ -33,13 +35,17 @@ class RatherCloudy(object):
 				l.remove(l[0]) 
 				for i in range(len(l)):
 					self.sections.append(self.create_section(id_sec=l[i][:l[i].index(':')],title=l[i][l[i].index(':')+1:]))
+
+				for section in self.sections:
+					self.find_folders(section)
+					for folder in section['folders']:
+						self.find_files(section,folder)
 			else:
 				print('No Cfg\'s')
 				self.new_section(input('Wi will create new section. Tell me title'))
-		for section in self.sections:
-			self.find_folders(section)
 		return self.sections			
 
+#DEV#
 	def create_section(self,id_sec=None,title=None):
 		obj = {
 			'id':id_sec,
@@ -48,6 +54,7 @@ class RatherCloudy(object):
 		}
 		return obj
 
+#DEV#
 	def create_folder(self,fd_id=None,title_fd=None):
 		obj = {
 			'fd_id':fd_id,
@@ -56,21 +63,17 @@ class RatherCloudy(object):
 		}
 		return obj
 
-	def create_file(self,name_f=None,type_f=None,id_f=None):
+#DEV#
+	def create_file(self,name_f=None,type_f=None,id_f=None,down_link=None):
 		obj = {
 			'name':name_f,
 			'type':type_f,
-			'id_f':id_f
+			'id_f':id_f,
+			'down_link':down_link,
 		}
 		return obj
-		
-	def edit_section(self,section,folder=None,fd_n=None,file=None):
-		if folder:
-			section['folders'].append(folder)
-		if fd_n:
-			section['folders'].append(file)
-		return self.sections
 
+#DEV+USR#
 	def new_section(self,title):
 		id = self.client.messages.createChat(
 			user_ids=self.masterid,
@@ -78,7 +81,8 @@ class RatherCloudy(object):
 			)
 		self.sections.append(self.create_section(id_sec=id,title=title))
 		return self.sections
-	
+
+#DEV#	
 	def get_section_by_name(self,section_name):
 		for section in self.sections:
 			if section['title'] == section_name:
@@ -89,15 +93,26 @@ class RatherCloudy(object):
 			return False
 		return gotcha
 
+#DEV#		
+	def edit_section(self,section,folder=None,fd_n=None,file=None):
+		if folder:
+			section['folders'].append(folder)
+		else:
+			section['folders'][fd_n]['files'].append(file)
+		return self.sections
+
+#DEV+USR#
 	def new_folder(self,section_name,title):
 		section = self.get_section_by_name(section_name)
 		obj = self.client.messages.send(
-			chat_id = int(nowsection['id']),
+			chat_id = int(section['id']),
 			message = '&#128193;' + str(title),
 			random_id=get_random_id(),
 			)
+		self.edit_section(section,folder=self.create_folder(obj,title))
 		return obj
 
+#USR#
 	def edit_folder_name(self,section_name,past_name,title):
 		section = self.get_section_by_name(section_name)
 		for folder in section['folders']:
@@ -110,6 +125,7 @@ class RatherCloudy(object):
 			)
 		return self.sections
 
+#DEV#
 	def find_folders(self,section):
 		obj = self.client.messages.search(
 				q='&#128193;',
@@ -119,9 +135,77 @@ class RatherCloudy(object):
 		for item in obj['items']:
 			self.edit_section(section,folder=self.create_folder(item['id'],item['text'][1:]))
 		return self.sections
-	
+
+#DEV#
+	def find_files(self,section,folder):
+		obj = self.client.messages.getById(
+				message_ids=folder['fd_id'],
+			)
+		for i in range(len(section['folders'])):
+			if section['folders'][i]['fd_id'] == folder['fd_id']:
+				fd_n = i
+				break
+		for file in obj['items'][0]['attachments']:
+			self.edit_section(section,fd_n=i,file=self.create_file(name_f=file['doc']['title'],type_f=file['doc']['type'],id_f=file['doc']['id'],down_link=file['doc']['url']))
+		return self.sections
+
+#DEV#
+	def upload_file(self,doc,title=None):
+		a = VkUpload(self.client)
+		if not title:
+			title = os.path.basename(doc)
+		return a.document(doc,title)
+
+#DEV#
+	def delete_file(self,doc_id): 
+		obj = self.client.docs.delete(
+			owner_id = self.masterid,
+			doc_id=doc_id
+			)
+		return obj
+
+#DEV#
+	def download_file(self,name,link):
+		import requests
+		f = open(name,'wb')
+		file = requests.get(link)
+		f.write(file.content)
+		f.close()
+
+#DEV#
+	def outdated_folder():
+		pass
+
+#USR#
+	def add_file_to_folder(self,section_name,title_fd,file,filename=None):
+		section = self.get_section_by_name(section_name)
+		for i in range(len(section['folders'])):
+			if section['folders'][i]['title_fd'] == title_fd:
+				ifolder = i
+				folder = section['folders'][i]
+				break
+		obj = self.upload_file(file,filename)
+		self.edit_section(section,fd_n=ifolder,file=self.create_file(name_f=obj['doc']['title'],type_f=obj['doc']['type'],id_f=obj['doc']['id'],down_link=obj['doc']['url']))
+		nowfiles = ""
+		for file in section['folders'][i]['files']:
+			nowfiles += 'doc'+ str(self.masterid) + '_' + str(file['id_f']) + ','
+		try:
+			self.client.messages.edit(
+				peer_id=2000000000+int(section['id']),
+				message_id=section['folders'][ifolder]['fd_id'],
+				message='&#128193;'+str(section['folders'][ifolder]['title_fd']),
+				attachment=nowfiles,
+				keep_forward_messages=1,
+				dont_parse_links=1,
+				keep_snippets=1,
+			)
+		except exceptions.ApiError:
+			print('This message is too old')
+			self.outdated_message(section,folder)
+		self.delete_file(obj['doc']['id'])
+		return self.sections
 
 
-cloud = RatherCloudy('token')
-cloud.cfg()
-cloud.cfg('save')
+#cloud = RatherCloudy(token)
+#print(cloud.cfg())
+#cloud.cfg('save')
