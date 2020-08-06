@@ -183,10 +183,13 @@ class RatherCloudy(object):
 		return self.sections
 
 	def upload_file(self,doc,title=None):
-		a = VkUpload(self.client)
-		if not title:
-			title = os.path.basename(doc)
-		return a.document(doc,title)
+		if os.path.getsize(doc) >= 209715200:  #200MB
+			pass #bitdwn
+		else:
+			a = VkUpload(self.client)
+			if not title:
+				title = os.path.basename(doc)
+			return a.document(doc,title)
 
 	def delete_file(self,doc_id):
 		obj = self.client.docs.delete(
@@ -230,6 +233,7 @@ class RatherCloudy(object):
 		self.delete_file(obj['doc']['id'])
 		return self.sections
 
-#cloud = RatherCloudy(token)
-#cloud.cfg()
-#cloud.cfg('save')
+
+
+
+
