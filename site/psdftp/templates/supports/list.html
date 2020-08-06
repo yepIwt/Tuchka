@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %} Фолловеры {% endblock %}
+{% block content %}
+	<h1>Сейчас нас поддерживают:</h1><br>
+	{% if supports %}
+		{% for support in supports %}
+			<a href="{% url 'supports:thanks' support.name %}">{{support.name}}</a>
+			{{support.date}}
+			<hr>
+		{% endfor %}
+	{% else%}
+		<b>Никто:(</b>
+	{% endif %}
+	<br>
+	<br>
+	<h1>Вы можете поддержать нас прямо сейчас:</h1><br>
+	<form action="{% url 'supports:support' %}" method="POST">
+		{% csrf_token %}
+		<input type="text" required placeholder='Your Name' name="name"><br>
+		<button type="sumbit">Support</button>
+	</form>
+
+{% endblock %}
