@@ -1,5 +1,5 @@
 #	Rewrite!
-#	https://github.com/serg1evsky
+#	https://github.com/yepIwt
 #	2020
 
 import os
