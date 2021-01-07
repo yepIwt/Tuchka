@@ -38,3 +38,8 @@ class Config(object):
             'archives': archives,
         }
         self.crypter.enc(str(new_config))
+    
+    def save_in_file(self) -> None:
+        self.crypter.enc(str(self.data))
+        config_as_str = self.crypter.dec()
+        self.data = ast.literal_eval(config_as_str)
