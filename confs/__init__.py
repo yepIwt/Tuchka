@@ -1,6 +1,6 @@
 import os
 import ast
-import crypt
+from .crypt import LetItCrypt
 from vk_api import VkApi
 from Crypto.Cipher import DES
 
@@ -12,7 +12,7 @@ class Config(object):
     __slots__ = ('crypter','data')
 
     def __init__(self,passw):
-        self.crypter = crypt.LetItCrypt(passw)
+        self.crypter = LetItCrypt(passw)
         if not os.path.exists('data'):
             self.new_cfg()
         config_as_str = self.crypter.dec()
