@@ -21,6 +21,11 @@ class Config(object):
     def get_archive_title(self,id: int, api_methods: VkApi) -> str:
         return api_methods.messages.getChat(chat_id = id - PEER_CONST)['title']
 
+    def create_new_archive(self, title: str, api_methods: VkApi):
+        new_archive_id = api_methods.messages.createChat(title=title)
+        api_methods.messages.send(peer_id=PEER_CONST+new_archive_id,message=SYNC_CODE,random_id=0)
+        return new_archive_id
+
     def get_all_archives(self,token: str) -> list:
         session = VkApi(token=token)
         api = session.get_api()
@@ -31,6 +36,10 @@ class Config(object):
                 if d['peer_id'] > PEER_CONST:
                     archive_title = self.get_archive_title(d['peer_id'], api)
                     all_archives.append({'name': archive_title,'id':d['peer_id']})
+        if not all_archives:
+            new_title = input('Похоже, что у вас нет доступных архивов. Я создам новый. Введите название: ')
+            new_id = self.create_new_archive(new_title, api)
+            all_archives.append({'name':new_title, 'id': PEER_CONST+new_id})
         return all_archives
 
     def new_cfg(self):
