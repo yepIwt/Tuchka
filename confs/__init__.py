@@ -18,6 +18,9 @@ class Config(object):
         config_as_str = self.crypter.dec()
         self.data = ast.literal_eval(config_as_str)
     
+    def get_archive_title(self,id: int, api_methods: VkApi) -> str:
+        return api_methods.messages.getChat(chat_id = id - PEER_CONST)['title']
+
     def get_all_archives(self,token: str) -> list:
         session = VkApi(token=token)
         api = session.get_api()
@@ -26,7 +29,8 @@ class Config(object):
         if messages:
             for d in messages['items']:
                 if d['peer_id'] > PEER_CONST:
-                    all_archives.append({'name':'todo','id':d['peer_id']})
+                    archive_title = self.get_archive_title(d['peer_id'], api)
+                    all_archives.append({'name': archive_title,'id':d['peer_id']})
         return all_archives
 
     def new_cfg(self):
