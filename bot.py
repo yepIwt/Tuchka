@@ -3,7 +3,7 @@ from vk_api import VkApi
 
 class Base(object):
 
-    __slots__ = ('api','config')
+    __slots__ = ('config')
 
     def __init__(self,password: str):
         self.config = confs.Config('password')
@@ -17,6 +17,14 @@ class Base(object):
         chat_id = int(input('Выберите чат для синхронизации: '))
         self.config.data['sync_chat'] = self.config.data['archives'][chat_id]['id']
     
+    def get_attachments_from(self, archive_id: int):
+        attachs = self.config.api.messages.getHistoryAttachments(peer_id=archive_id,media_type='doc',count=200)['items']
+        attach_json = []
+        for attach in attachs:
+            attach_json.append({'title':attach['attachment']['doc']['title'], 'link':attach['attachment']['doc']['url']})
+        return attach_json
+
+
     def has_sync_chat(self) -> bool:
         if not self.config.data['sync_chat']:
             return False
