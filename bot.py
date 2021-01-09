@@ -1,5 +1,6 @@
 import confs
 from vk_api import VkApi
+from vk_api import VkUpload
 
 class Base(object):
 
@@ -9,6 +10,7 @@ class Base(object):
         self.config = confs.Config('password')
         if not self.has_sync_chat():
             self.new_sync_chat()
+        self.save()
 
     def new_sync_chat(self) -> None:
         print('Доступные архивы:')
@@ -30,10 +32,16 @@ class Base(object):
             return False
         return True
     
-    def upload_file(self):
-        pass
+    def upload_file(self, path_to_file: str):
+        up = VkUpload(self.config.api)
+        new_uploaded_file = up.document(doc = path_to_file)
+        file_info = {
+            'title': new_uploaded_file['doc']['title'], 
+            'link': new_uploaded_file['doc']['url']
+        }
+        return file_info
 
     def save(self):
         self.config.save_in_file()
 
-Base('123').save()
+Base('123')
