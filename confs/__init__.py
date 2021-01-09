@@ -47,7 +47,7 @@ class Config(object):
         return all_archives
 
     def new_cfg(self):
-        token = input('Введите токен для vk_api (kate mobile token): ')
+        token = input('Введите токен для vk_api (vk admin token): ')
         archives = self.get_all_archives(token)
         new_config = {
             'token': token, 
