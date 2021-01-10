@@ -1,3 +1,4 @@
+import os
 import confs
 from vk_api import VkApi
 from vk_api import VkUpload
@@ -35,6 +36,8 @@ class Base(object):
     def upload_file(self, path_to_file: str):
         up = VkUpload(self.config.api)
         new_uploaded_file = up.document(doc = path_to_file)
+        filename = os.path.basename(path_to_file)
+        new_uploaded_file = up.document(doc = path_to_file,title=filename)
         file_info = {
             'title': new_uploaded_file['doc']['title'], 
             'link': new_uploaded_file['doc']['url']
