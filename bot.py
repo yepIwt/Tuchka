@@ -11,14 +11,10 @@ class Base(object):
         self.config = confs.Config('password')
         if not self.has_sync_chat():
             self.new_sync_chat()
+        print('Syncing remote files...')
+        self.config.data['sync_files'] = self.get_attachments_from(self.config.data['sync_chat'])
+        print('Remote files synced')
         self.save()
-
-    def new_sync_chat(self) -> None:
-        print('Доступные архивы:')
-        for a, name in list(enumerate(self.config.data['archives'])):
-            print(a, name['name'])
-        chat_id = int(input('Выберите чат для синхронизации: '))
-        self.config.data['sync_chat'] = self.config.data['archives'][chat_id]['id']
     
     def get_attachments_from(self, archive_id: int):
         # todo: получать больше 200ста файлов
@@ -32,6 +28,13 @@ class Base(object):
         if not self.config.data['sync_chat']:
             return False
         return True
+    
+    def new_sync_chat(self) -> None:
+        print('Доступные архивы:')
+        for a, name in list(enumerate(self.config.data['archives'])):
+            print(a, name['name'])
+        chat_id = int(input('Выберите чат для синхронизации: '))
+        self.config.data['sync_chat'] = self.config.data['archives'][chat_id]['id']
     
     def upload_file(self, path_to_file: str):
         up = VkUpload(self.config.api)
