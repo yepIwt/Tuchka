@@ -13,9 +13,10 @@ class Base(object):
             self.new_sync_chat()
         print('Syncing remote files...')
         self.config.data['sync_files'] = self.get_attachments_from(self.config.data['sync_chat'])
+        self.config.data['sync_files'].reverse()
         print('Remote files synced')
         self.save()
-    
+
     def get_attachments_from(self, archive_id: int):
         # todo: получать больше 200ста файлов
         attachs = self.config.api.messages.getHistoryAttachments(peer_id=archive_id,media_type='doc',count=200)['items']
@@ -28,20 +29,20 @@ class Base(object):
         if not self.config.data['sync_chat']:
             return False
         return True
-    
+
     def new_sync_chat(self) -> None:
         print('Доступные архивы:')
         for a, name in list(enumerate(self.config.data['archives'])):
             print(a, name['name'])
         chat_id = int(input('Выберите чат для синхронизации: '))
         self.config.data['sync_chat'] = self.config.data['archives'][chat_id]['id']
-    
+
     def upload_file(self, path_to_file: str):
         up = VkUpload(self.config.api)
         filename = os.path.basename(path_to_file)
         new_uploaded_file = up.document(doc = path_to_file,title=filename)
         return new_uploaded_file['doc']['owner_id'], new_uploaded_file['doc']['id']
-    
+
     def delete_temp_file(self, owner_id: str, file_id: str):
         self.config.api.docs.delete(owner_id=owner_id, doc_id=file_id)
 
@@ -51,7 +52,6 @@ class Base(object):
             attach = 'doc' + str(owner_id) + '_' + str(file_id)
             self.config.api.messages.send(peer_id = self.config.data['sync_chat'], attachment=attach, random_id = 0)
         self.delete_temp_file(owner_id,file_id)
-            
 
     def save(self):
         self.config.save_in_file()
