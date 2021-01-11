@@ -11,9 +11,10 @@ class Base(object):
         self.config = confs.Config('password')
         if not self.has_sync_chat():
             self.new_sync_chat()
-        print('Syncing remote files...')
-        self.config.data['sync_files'] = self.get_attachments_from(self.config.data['sync_chat'])
-        print('Remote files synced')
+        #print('Syncing remote files...')
+        #self.config.data['sync_files'] = self.get_attachments_from(self.config.data['sync_chat'])
+        #print('Remote files synced')
+        self.upload_file_to_archive('.gitignore')
         self.save()
     
     def get_attachments_from(self, archive_id: int):
@@ -38,14 +39,15 @@ class Base(object):
     
     def upload_file(self, path_to_file: str):
         up = VkUpload(self.config.api)
-        new_uploaded_file = up.document(doc = path_to_file)
         filename = os.path.basename(path_to_file)
         new_uploaded_file = up.document(doc = path_to_file,title=filename)
-        file_info = {
-            'title': new_uploaded_file['doc']['title'], 
-            'link': new_uploaded_file['doc']['url']
-        }
-        return file_info
+        return new_uploaded_file['doc']['owner_id'], new_uploaded_file['doc']['id']
+    
+    def upload_file_to_archive(self,path_to_file: str, archive_id = None):
+        if not archive_id:
+            owner_id, file_id = self.upload_file(path_to_file)
+            attach = 'doc' + str(owner_id) + '_' + str(file_id)
+            self.config.api.messages.send(peer_id = self.config.data['sync_chat'], attachment=attach, random_id = 0)
 
     def save(self):
         self.config.save_in_file()
