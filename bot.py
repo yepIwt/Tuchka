@@ -22,7 +22,10 @@ class Base(object):
         attachs = self.config.api.messages.getHistoryAttachments(peer_id=archive_id,media_type='doc',count=200)['items']
         attach_json = []
         for attach in attachs:
-            attach_json.append({'title':attach['attachment']['doc']['title'], 'link':attach['attachment']['doc']['url']})
+            title = attach['attachment']['doc']['title']
+            link = attach['attachment']['doc']['url']
+            message_id = attach['message_id']
+            attach_json.append({'title':title, 'link':link, 'debug_id':message_id})
         return attach_json
 
     def has_sync_chat(self) -> bool:
@@ -46,12 +49,29 @@ class Base(object):
     def delete_temp_file(self, owner_id: str, file_id: str):
         self.config.api.docs.delete(owner_id=owner_id, doc_id=file_id)
 
-    def upload_file_to_archive(self,path_to_file: str, archive_id = None):
+    def upload_file_to_archive(self, path_to_file: str, archive_id = None):
         if not archive_id:
             owner_id, file_id = self.upload_file(path_to_file)
             attach = 'doc' + str(owner_id) + '_' + str(file_id)
             self.config.api.messages.send(peer_id = self.config.data['sync_chat'], attachment=attach, random_id = 0)
         self.delete_temp_file(owner_id,file_id)
+
+    def delete_files_from_archive(self):
+        print('DELMODE: Выберите файлы, которые вы хотите удалить (eg. "0 3 5")')
+        for i, data in enumerate(self.config.data['sync_files']):
+            print(i, data['title'])
+        queue = list(map(int, input().split()))
+        # todo: проверка на выход за приделы массива
+
+        message_ids = ''
+        for file_n in queue:
+            message_ids += str(self.config.data['sync_files'][file_n]['debug_id']) + ','
+        message_ids = message_ids[:-1]
+
+        # todo: добавить время загрузки файлов чтобы сразу определять можно ли "удалить для всех"
+        self.config.api.messages.delete(message_ids=message_ids,delete_for_all=0)
+        self.config.data['sync_files'] = self.get_attachments_from(self.config.data['sync_chat'])
+        print('Файлы удалены!')
 
     def save(self):
         self.config.save_in_file()
