@@ -50,7 +50,8 @@ class Config(object):
         token = input('Введите токен для vk_api (vk admin token): ')
         archives = self.get_all_archives(token)
         new_config = {
-            'token': token, 
+            'token': token,
+            'sync_chat_title':None,
             'sync_chat':None,
             'sync_files':[],
             'archives': archives,

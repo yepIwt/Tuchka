@@ -15,6 +15,7 @@ class Base(object):
         self.config.data['sync_files'] = self.get_attachments_from(self.config.data['sync_chat'])
         self.config.data['sync_files'].reverse()
         print('Remote files synced')
+        print(self.config.data)
         self.save()
 
     def get_attachments_from(self, archive_id: int):
@@ -39,6 +40,7 @@ class Base(object):
             print(a, name['name'])
         chat_id = int(input('Выберите чат для синхронизации: '))
         self.config.data['sync_chat'] = self.config.data['archives'][chat_id]['id']
+        self.sync_remote_title()
 
     def upload_file(self, path_to_file: str):
         up = VkUpload(self.config.api)
@@ -72,6 +74,12 @@ class Base(object):
         self.config.api.messages.delete(message_ids=message_ids,delete_for_all=0)
         self.config.data['sync_files'] = self.get_attachments_from(self.config.data['sync_chat'])
         print('Файлы удалены!')
+
+    def sync_remote_title(self):
+        chat_id = int(self.config.data['sync_chat']) - confs.PEER_CONST
+        remote_title = self.config.api.messages.getChat(chat_id=chat_id)['title']
+        # todo: conflicts
+        self.config.data['sync_chat_title'] = remote_title
 
     def save(self):
         self.config.save_in_file()
