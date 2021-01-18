@@ -1,5 +1,6 @@
 import os
 import confs
+import requests
 from vk_api import VkApi
 from vk_api import VkUpload
 
@@ -40,7 +41,7 @@ class Base(object):
             print(a, name['name'])
         chat_id = int(input('Выберите чат для синхронизации: '))
         self.config.data['sync_chat'] = self.config.data['archives'][chat_id]['id']
-        self.sync_remote_title()
+        self.sync_remote_archive_title()
 
     def upload_file(self, path_to_file: str):
         up = VkUpload(self.config.api)
@@ -75,11 +76,16 @@ class Base(object):
         self.config.data['sync_files'] = self.get_attachments_from(self.config.data['sync_chat'])
         print('Файлы удалены!')
 
-    def sync_remote_title(self):
+    def sync_remote_archive_title(self):
         chat_id = int(self.config.data['sync_chat']) - confs.PEER_CONST
         remote_title = self.config.api.messages.getChat(chat_id=chat_id)['title']
         # todo: conflicts
         self.config.data['sync_chat_title'] = remote_title
+
+    def download_file(self,url: str, place: str) -> None:
+        r = requests.get(url)
+        with open(place, 'wb') as f:
+            f.write(r.content)
 
     def save(self):
         self.config.save_in_file()
