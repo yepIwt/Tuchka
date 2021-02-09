@@ -13,10 +13,10 @@ class Base(object):
         if not self.has_sync_chat():
             self.new_sync_chat()
         print('Syncing remote files...')
+        print('Current Config: ', self.config.data)
         self.config.data['sync_files'] = self.get_attachments_from(self.config.data['sync_chat'])
         self.config.data['sync_files'].reverse()
         print('Remote files synced')
-        print(self.config.data)
         self.save()
 
     def get_attachments_from(self, archive_id: int):
