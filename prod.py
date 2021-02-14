@@ -4,10 +4,28 @@ import confs
 
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QApplication, QMainWindow, QProgressBar, QLineEdit, QPushButton
+from PyQt5.QtWidgets import QApplication, QMainWindow, QProgressBar, QLineEdit, QPushButton, QWidget
+from PyQt5.QtCore import Qt
 
 from uis.ui_main import Ui_MainWindow
 from vk_api import exceptions
+
+class FilesWidget(QWidget):
+	def __init__(self):
+		super().__init__()
+		self.setAcceptDrops(True)
+
+	def dragEnterEvent(self, event):
+		event.accept()
+		#print(dir(event.mimeData().retrieveData()))
+
+	def dragMoveEvent(self, event):
+		event.accept()
+
+	def dropEvent(self, event):
+		event.setDropAction(Qt.CopyAction)
+		file_path = event.mimeData().urls()[0].toLocalFile()
+		print(file_path)
 
 class MainWindow(QMainWindow, Ui_MainWindow):
 
@@ -19,6 +37,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 		self.winchanger.setCurrentIndex(0)
 		self.config = confs.Config()
 		self.temp = []
+		wid = FilesWidget()
+		self.files_layout.addWidget(wid)
 		print('Конфиг то есть? - ',self.config.data)
 		if not self.config.data:
 			self.winchanger.setCurrentIndex(2)
@@ -26,7 +46,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 		else:
 			self.winchanger.setCurrentIndex(2)
 			self.change_quest_page('Enter password')
-			print('Чето да, вроде есть')
 			self.one_line.clear()
 			self.one_line.returnPressed.connect(self.decrypt_config)
 
@@ -36,13 +55,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 		self.one_label.setFont(QtGui.QFont('Cantarell', 26))
 		self.one_label.setStyleSheet("font-weight: bold")
 
-	def new_api_check(self):
-		new_api = self.one_line.text()
+	def new_api_check(self, token=None):
+		new_api = token or self.one_line.text()
 		self.config.get_api(new_api)
 		if isinstance(self.config.api, exceptions.ApiError):
 			self.change_quest_page(str(self.config.api))
 		else:	#Возможна ошибка двойного перезапуска
-			print('Закрепил с этим паорлем',self.temp[0])
 			self.config.new_cfg(new_api,self.temp[0])
 			self.winchanger.setCurrentIndex(1)
 			self.config.save()
@@ -57,11 +75,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 		self.one_line.returnPressed.connect(self.get_new_password)
 
 	def decrypt_config(self):
-		print(f'ДЕкриптинг файлс виф {self.one_line.text()}')
-		right = self.config.unlock_file(self.one_line.text())
-		print('Здесь же! конфиг - ',self.config.data)
-		if right:
-			self.change_quest_page('Unlocked!')
+		unlocked = self.config.unlock_file(self.one_line.text())
+		if unlocked:
+			self.change_quest_page('Получение vk-api')
+			self.config.get_api(self.config.data['token'])
+			self.change_quest_page('Получен vk-api')
+			self.winchanger.setCurrentIndex(1)
+			#self.files.addItem('test')
+			#self.files.addItem('ne test')
+			#self.files.setDragDropMode(self.files.InternalMove)
+			#print(self.files.setAcceptDrops(True))
 		else:
 			self.change_quest_page('Bad pasasword')
 

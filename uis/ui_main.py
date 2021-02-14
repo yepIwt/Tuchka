@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'new211.ui'
+# Form implementation generated from reading ui file 'new214.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.2
 #
@@ -44,26 +44,9 @@ class Ui_MainWindow(object):
         self.page_work.setObjectName("page_work")
         self.gridLayout = QtWidgets.QGridLayout(self.page_work)
         self.gridLayout.setObjectName("gridLayout")
-        self.files = QtWidgets.QListWidget(self.page_work)
-        self.files.setTabKeyNavigation(False)
-        self.files.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectColumns)
-        self.files.setIconSize(QtCore.QSize(50, 50))
-        self.files.setTextElideMode(QtCore.Qt.ElideRight)
-        self.files.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollPerItem)
-        self.files.setHorizontalScrollMode(QtWidgets.QAbstractItemView.ScrollPerPixel)
-        self.files.setMovement(QtWidgets.QListView.Snap)
-        self.files.setFlow(QtWidgets.QListView.TopToBottom)
-        self.files.setProperty("isWrapping", True)
-        self.files.setResizeMode(QtWidgets.QListView.Fixed)
-        self.files.setLayoutMode(QtWidgets.QListView.Batched)
-        self.files.setGridSize(QtCore.QSize(100, 100))
-        self.files.setViewMode(QtWidgets.QListView.IconMode)
-        self.files.setModelColumn(0)
-        self.files.setUniformItemSizes(True)
-        self.files.setWordWrap(True)
-        self.files.setItemAlignment(QtCore.Qt.AlignAbsolute|QtCore.Qt.AlignBaseline|QtCore.Qt.AlignBottom|QtCore.Qt.AlignCenter|QtCore.Qt.AlignHCenter|QtCore.Qt.AlignHorizontal_Mask|QtCore.Qt.AlignJustify|QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignRight|QtCore.Qt.AlignTop|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter|QtCore.Qt.AlignVertical_Mask)
-        self.files.setObjectName("files")
-        self.gridLayout.addWidget(self.files, 0, 0, 1, 1)
+        self.files_layout = QtWidgets.QGridLayout()
+        self.files_layout.setObjectName("files_layout")
+        self.gridLayout.addLayout(self.files_layout, 0, 0, 1, 1)
         self.winchanger.addWidget(self.page_work)
         self.quest_page = QtWidgets.QWidget()
         self.quest_page.setObjectName("quest_page")
@@ -91,8 +74,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.winchanger.setCurrentIndex(2)
-        self.files.setCurrentRow(-1)
+        self.winchanger.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
