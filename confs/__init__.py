@@ -9,19 +9,37 @@ PEER_CONST = 2000000000
 
 class Config(object):
 
-    __slots__ = ('crypter','data','api')
+    __slots__ = ('crypter','data','api','is_decrypted')
 
-    def __init__(self,passw):
-        self.crypter = LetItCrypt(passw)
+    def __init__(self):
         if not os.path.exists('data'):
-            self.new_cfg()
-        config_as_str = self.crypter.dec()
-        self.data = ast.literal_eval(config_as_str)
-        self.get_api(self.data['token'])
+            self.data = False
+        else:
+            self.data = True
+
+    def unlock_file(self,passw: str):
+        self.crypter = LetItCrypt(passw)
+        self.data = self.crypter.dec()
+        if not self.data:
+            return False
+        else:
+            self.data = ast.literal_eval(self.data)
+            return True
+
+    def create_config_file(self, passw: str):
+        f = open('data','w')
+        f.close()
+
+    def save(self):
+        self.crypter.enc(str(self.data))
 
     def get_api(self,token: str) -> None:
         session = VkApi(token=token)
         self.api = session.get_api()
+        try:
+            self.api.users.get()
+        except Exception as error:
+            self.api = error
 
     def get_archive_title(self,id: int) -> str:
         return self.api.messages.getChat(chat_id = id - PEER_CONST)['title']
@@ -32,7 +50,7 @@ class Config(object):
         return new_archive_id
 
     def get_all_archives(self,token: str) -> list:
-        self.get_api(token)
+        #self.get_api(token)
         messages = self.api.messages.search(q=SYNC_CODE,count=100)
         all_archives = []
         if messages:
@@ -41,13 +59,11 @@ class Config(object):
                     archive_title = self.get_archive_title(d['peer_id'])
                     all_archives.append({'name': archive_title,'id':d['peer_id']})
         if not all_archives:
-            new_title = input('Похоже, что у вас нет доступных архивов. Я создам новый. Введите название: ')
-            new_id = self.create_new_archive(new_title)
-            all_archives.append({'name':new_title, 'id': PEER_CONST+new_id})
+            new_id = self.create_new_archive('New Archive')
+            all_archives.append({'name':'New Archive', 'id': PEER_CONST+new_id})
         return all_archives
 
-    def new_cfg(self):
-        token = input('Введите токен для vk_api (vk admin token): ')
+    def new_cfg(self,token,password):
         archives = self.get_all_archives(token)
         new_config = {
             'token': token,
@@ -56,9 +72,6 @@ class Config(object):
             'sync_files':[],
             'archives': archives,
         }
-        self.crypter.enc(str(new_config))
-
-    def save_in_file(self) -> None:
+        self.data = new_config
+        self.crypter = LetItCrypt(password)
         self.crypter.enc(str(self.data))
-        config_as_str = self.crypter.dec()
-        self.data = ast.literal_eval(config_as_str)

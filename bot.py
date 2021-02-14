@@ -9,7 +9,9 @@ class Base(object):
     __slots__ = ('config')
 
     def __init__(self,password: str):
-        self.config = confs.Config('password')
+        self.config = confs.Config(password)
+        
+    def start(self):
         if not self.has_sync_chat():
             self.new_sync_chat()
         print('Syncing remote files...')
@@ -89,5 +91,3 @@ class Base(object):
 
     def save(self):
         self.config.save_in_file()
-
-Base('123')

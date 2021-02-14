@@ -26,8 +26,11 @@ class LetItCrypt(object):
 		cipher = AES.new(self.key, self.mode, self.IV)
 		with open('data','rb') as f:
 			data = f.read()
-		return cipher.decrypt(data).rstrip().decode()
+		try:
+			return cipher.decrypt(data).rstrip().decode()
+		except:
+			return None
 
-#a = LetItCrypt('123')
-#a.enc('hey you. open your eyes')
+#a = LetItCrypt('password')
 #print(a.dec())
+#a.enc('hey you. open your eyes')
