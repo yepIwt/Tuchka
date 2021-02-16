@@ -2,18 +2,42 @@
 import sys
 import confs
 
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSignal, QSize
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QApplication, QMainWindow, QProgressBar, QLineEdit, QPushButton, QWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QProgressBar, QLineEdit, QPushButton, QWidget, QListWidget, QListWidgetItem, QListView
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
 
 from uis.ui_main import Ui_MainWindow
 from vk_api import exceptions
 
-class FilesWidget(QWidget):
+class FilesWidget(QListWidget):
+
 	def __init__(self):
 		super().__init__()
 		self.setAcceptDrops(True)
+		icon = QIcon('fileicon.png')
+		self.addItem(QListWidgetItem(icon, 'filename'))
+		self.addItem(QListWidgetItem(icon, 'filename'))
+		self.addItem(QListWidgetItem(icon, 'filename'))
+		self.addItem(QListWidgetItem(icon, 'filename'))
+		self.addItem(QListWidgetItem(icon, 'filename'))
+		self.addItem(QListWidgetItem(icon, 'filename'))
+		self.addItem(QListWidgetItem(icon, 'filename'))
+		self.addItem(QListWidgetItem(icon, 'filename'))
+		self.addItem(QListWidgetItem(icon, 'filename'))
+		self.addItem(QListWidgetItem(icon, 'filename'))
+		self.addItem(QListWidgetItem(icon, 'filename'))
+		self.addItem(QListWidgetItem(icon, 'filename'))
+		self.addItem(QListWidgetItem(icon, 'filename'))
+		self.addItem(QListWidgetItem(icon, 'filename'))
+		self.addItem(QListWidgetItem(icon, 'filename'))
+		self.addItem(QListWidgetItem(icon, 'filename'))
+		self.addItem(QListWidgetItem(icon, 'filename'))
+		self.addItem(QListWidgetItem(icon, 'filename'))
+		self.setGridSize(QSize(100,100))
+		self.setViewMode(QListView.ViewMode(1))
+		
 
 	def dragEnterEvent(self, event):
 		event.accept()
@@ -81,6 +105,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 			self.config.get_api(self.config.data['token'])
 			self.change_quest_page('Получен vk-api')
 			self.winchanger.setCurrentIndex(1)
+
 			#self.files.addItem('test')
 			#self.files.addItem('ne test')
 			#self.files.setDragDropMode(self.files.InternalMove)
