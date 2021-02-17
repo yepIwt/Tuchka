@@ -41,15 +41,18 @@ class FilesWidget(QListWidget):
 
 	def dragEnterEvent(self, event):
 		event.accept()
+		print(event.mimeData().urls())
+		#print(event.source().WhatsThis())
 		#print(dir(event.mimeData().retrieveData()))
 
 	def dragMoveEvent(self, event):
 		event.accept()
 
 	def dropEvent(self, event):
-		event.setDropAction(Qt.CopyAction)
-		file_path = event.mimeData().urls()[0].toLocalFile()
-		print(file_path)
+		if event.mimeData().urls():
+			event.setDropAction(Qt.CopyAction)
+			file_path = event.mimeData().urls()[0].toLocalFile()
+			print(file_path)
 
 class MainWindow(QMainWindow, Ui_MainWindow):
 
