@@ -4,9 +4,9 @@ import confs
 
 from PyQt5.QtCore import QThread, pyqtSignal, QSize
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QApplication, QMainWindow, QProgressBar, QLineEdit, QPushButton, QWidget, QListWidget, QListWidgetItem, QListView
+from PyQt5.QtWidgets import QApplication, QMainWindow, QProgressBar, QLineEdit, QPushButton, QWidget, QListWidget, QListWidgetItem, QListView, QAbstractItemView
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QDrag
 
 from uis.ui_main import Ui_MainWindow
 from vk_api import exceptions
@@ -15,40 +15,53 @@ class FilesWidget(QListWidget):
 
 	def __init__(self):
 		super().__init__()
-		self.setAcceptDrops(True)
+		self.setAcceptDrops(False)
 		icon = QIcon('fileicon.png')
-		self.addItem(QListWidgetItem(icon, 'filename'))
-		self.addItem(QListWidgetItem(icon, 'filename'))
-		self.addItem(QListWidgetItem(icon, 'filename'))
-		self.addItem(QListWidgetItem(icon, 'filename'))
-		self.addItem(QListWidgetItem(icon, 'filename'))
-		self.addItem(QListWidgetItem(icon, 'filename'))
-		self.addItem(QListWidgetItem(icon, 'filename'))
-		self.addItem(QListWidgetItem(icon, 'filename'))
-		self.addItem(QListWidgetItem(icon, 'filename'))
-		self.addItem(QListWidgetItem(icon, 'filename'))
-		self.addItem(QListWidgetItem(icon, 'filename'))
-		self.addItem(QListWidgetItem(icon, 'filename'))
-		self.addItem(QListWidgetItem(icon, 'filename'))
-		self.addItem(QListWidgetItem(icon, 'filename'))
-		self.addItem(QListWidgetItem(icon, 'filename'))
-		self.addItem(QListWidgetItem(icon, 'filename'))
-		self.addItem(QListWidgetItem(icon, 'filename'))
-		self.addItem(QListWidgetItem(icon, 'filename'))
+		self.addItem(QListWidgetItem(icon, 'filename1'))
+		self.addItem(QListWidgetItem(icon, 'filename2'))
+		self.addItem(QListWidgetItem(icon, 'filename3'))
+		self.addItem(QListWidgetItem(icon, 'filename4'))
+		self.addItem(QListWidgetItem(icon, 'filename5'))
+		self.addItem(QListWidgetItem(icon, 'filename6'))
+		self.addItem(QListWidgetItem(icon, 'filename7'))
+		self.addItem(QListWidgetItem(icon, 'filename8'))
+		self.addItem(QListWidgetItem(icon, 'filename9'))
+		self.addItem(QListWidgetItem(icon, 'filename10'))
+		self.addItem(QListWidgetItem(icon, 'filename11'))
+		self.addItem(QListWidgetItem(icon, 'filename12'))
+		self.addItem(QListWidgetItem(icon, 'filename13'))
+		self.addItem(QListWidgetItem(icon, 'filename14'))
+		self.addItem(QListWidgetItem(icon, 'filename15'))
+		self.addItem(QListWidgetItem(icon, 'filename16'))
+		self.addItem(QListWidgetItem(icon, 'filename17'))
+		self.addItem(QListWidgetItem(icon, 'secret_photo'))
 		self.setGridSize(QSize(100,100))
 		self.setViewMode(QListView.ViewMode(1))
-		
+		self.setSelectionMode(QAbstractItemView.SingleSelection)
+		self.setDropIndicatorShown(True);
+		self.setDragDropMode(QAbstractItemView.InternalMove)
+
+	def startDrag(self, actions):
+		drag = QtGui.QDrag(self)
+		indexes = self.selectedIndexes()
+		mime = self.model().mimeData(indexes)
+		urlList = []
+		for index in indexes:
+			urlList.append(QtCore.QUrl.fromLocalFile(index.data()))
+		mime.setUrls(urlList)
+		drag.setMimeData(mime)
+		drag.exec_(actions)
+		print(drag.mimeData().urls())
+		print(drag.mimedata)
 
 	def dragEnterEvent(self, event):
 		event.accept()
-		print(event.mimeData().urls())
-		#print(event.source().WhatsThis())
-		#print(dir(event.mimeData().retrieveData()))
 
 	def dragMoveEvent(self, event):
 		event.accept()
 
 	def dropEvent(self, event):
+		#event.dropAction().as_integer_ratio()
 		if event.mimeData().urls():
 			event.setDropAction(Qt.CopyAction)
 			file_path = event.mimeData().urls()[0].toLocalFile()
@@ -66,6 +79,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 		self.temp = []
 		wid = FilesWidget()
 		self.files_layout.addWidget(wid)
+		self.setAcceptDrops(True)
 		print('Конфиг то есть? - ',self.config.data)
 		if not self.config.data:
 			self.winchanger.setCurrentIndex(2)
