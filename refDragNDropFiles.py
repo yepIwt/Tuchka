@@ -18,7 +18,8 @@ class DelayedMimeData(QtCore.QMimeData):
             result = callback()
             if result:
                 self.callbacks.remove(callback)
-        return QtCore.QMimeData.retrieveData(self, mime_type, preferred_type)
+        temp = QtCore.QMimeData.retrieveData(self, mime_type, preferred_type)
+        return temp
 
 
 class Widget(QtWidgets.QListWidget):
@@ -30,12 +31,15 @@ class Widget(QtWidgets.QListWidget):
         self.setViewMode(QListView.ViewMode(1))
         self.setSelectionMode(self.MultiSelection)
 
+    def make_file(self):
+        pass
+
     def startDrag(self, actions):
-        drag = QtGui.QDrag(self)
+        self.drag = QtGui.QDrag(self)
         names = [item.text() for item in self.selectedItems()]
         #print(names) #namefile
         mime = DelayedMimeData()
-        path_list = []
+        self.path_list = []
         for name in names:
             path = os.path.join(tempfile.gettempdir(), 'DragTest', name + ".txt")
             os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -45,22 +49,28 @@ class Widget(QtWidgets.QListWidget):
                     return False
                 else:
                     with open(path, 'w') as f:
-                        import time
-                        time.sleep(5)
+                        #import time
+                        #time.sleep(1)
+                        self.make_file()
+                        # todo: CURL downloader that compiles rn
                         f.write(contents)
-
-
                     return True
 
             mime.add_callback(write_to_file)
 
-            path_list.append(QtCore.QUrl.fromLocalFile(path))
-        mime.setUrls(path_list)
-        drag.setMimeData(mime)
-        drag.exec_(Qt.CopyAction)
+            self.path_list.append(QtCore.QUrl.fromLocalFile(path))
+        mime.setUrls(self.path_list.first().ff)
+        self.drag.setMimeData(mime)
+        self.drag.exec_(Qt.CopyAction)
+
+    def dragEnterEvent(self, event):
+        event.accept()
 
     def dragLeaveEvent(self, event):
-        print(dir(event))
+        event.accept()
+        print(self.path_list)
+        #print(dir(self.drag))
+        print(self.drag.event(event))
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
