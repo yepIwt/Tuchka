@@ -51,7 +51,6 @@ class Config(object):
 
     def get_all_archives(self,token: str) -> list:
         #self.get_api(token)
-        self.get_api(token)
         messages = self.api.messages.search(q=SYNC_CODE,count=100)
         all_archives = []
         if messages:
