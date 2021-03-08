@@ -19,7 +19,7 @@ class Config(object):
         else:
             self.data = True
 
-    def unlock_file(self,passw: str):
+    def unlock_file(self,passw: str) -> bool:
         self.crypter = LetItCrypt(passw)
         try:
             self.data = self.crypter.dec_cfg()
