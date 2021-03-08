@@ -6,6 +6,7 @@ from Crypto.Cipher import DES
 
 SYNC_CODE = "Archive: RatherCloudy"
 PEER_CONST = 2000000000
+FOLDER_NAME = 'DrivenCloud'
 
 class Config(object):
 
@@ -63,14 +64,16 @@ class Config(object):
             all_archives.append({'name':'New Archive', 'id': PEER_CONST+new_id})
         return all_archives
 
-    def new_cfg(self,token,password):
+    def new_cfg(self,token,password,dir):
         archives = self.get_all_archives(token)
+        #os.mkdir(os.path.join(str(Path.home()),'DrivenCl'))
         new_config = {
             'token': token,
             'sync_chat_title':None,
             'sync_chat':None,
             'sync_files':[],
             'archives': archives,
+            'localdir': dir,
         }
         self.data = new_config
         self.crypter = LetItCrypt(password)

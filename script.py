@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import os
+import os, platform
 import confs
 import zipfile
 import hideFolder
@@ -71,56 +71,67 @@ class Driven_Main(object):
 		file_in_url = r.get(link)
 		with open('containerNEW','wb') as f:
 			f.write(file_in_url.content)
+		print('Downloaded new container')
 
 		#step2: umount container
-		os.system('./mount_sudo.sh 0 /home/yepiwt/test')
-		print('Umounted')
+		try:
+			os.rmdir(self.config.data['localdir'])
+		except:
+			pass # TODO: trace this moment
+		print('Local folder cleared')
 
 		#step3: delete secret and container
-		os.remove('container')
+		os.remove(os.path.join(os.path.dirname(__file__), 'container'))
 		#step3.1: rename containers
 		os.rename('containerNEW','container')
-		os.rmdir('/home/yepiwt/Driven/secret')
-
+		
 		#step4: unlock container
-		self.config.dec_file()
+		self.config.crypter.dec_file()
 
 		#step5: unzip decrypted.zip 
-		hideFolder.unzipdir('decrypted.zip')
-
-		#step6: mount new container
-		os.system('./mount_sudo.sh 1 secret /home/yepiwt/test')
-
-
-
-
-
-
-
-d = Driven_Main()
+		hideFolder.unzipdir('decrypted.zip',os.path.join( os.path.dirname(self.config.data['localdir']),''))
+		
+		#step6: delete decrypted.zip
+		os.remove(os.path.join(os.path.dirname(__file__),'decrypted.zip'))
+		
+		
 
 def start():
 	d.config.unlock_file('123')
 	d.config.get_api(d.config.data['token']) # todo: if not token; use self.token
 	#d.sync()
-	versions = d.get_all_versions(14)
-	n = 1
+	d.get_all_versions(14)
+	n = 3
 	#for n, container_info in enumerate(versions):
 		#container_info[0] - date; container_info[1] - link
 	#	print(n,container_info[0])
 	d.change_version(n)
 
-if not d.config.data:
-	token = input('New token: ')
-	d.config.get_api(token)
-	if type(d.config.api) == vk_api.exceptions.ApiError:
-		print('Wrong api key!')
-		print(d.config.api)
+if __name__ == '__main__':
+	d = Driven_Main()
+	if not d.config.data:
+		token = input('New token: ')
+		d.config.get_api(token)
+		if type(d.config.api) == vk_api.exceptions.ApiError:
+			print(f'Wrong api key: {d.config.api}')
+		else:
+			passw = input('New cfg passw: ')
+			patch = '~'
+			folder_location = input(f'Enter path to local folder. Default folder - {os.path.join(os.path.expanduser(patch), confs.FOLDER_NAME)}: ')
+			if not folder_location:
+				folder_location = os.path.join(os.path.expanduser('~'), confs.FOLDER_NAME)
+			try:
+				os.mkdir(folder_location)
+			except FileExistsError:
+				pass
+			except FileNotFoundError:
+				print('Incorrect path. Using default folder')
+				folder_location = os.path.join(os.path.expanduser('~'), confs.FOLDER_NAME)
+			d.config.new_cfg(token, passw, folder_location)
+			d.config.save()
+			start()
 	else:
-		passw = input('New cfg passw: ')
-		d.config.new_cfg(token, passw)
-		d.config.save()
-else:
-	start()
+		start()
+
 
 
