@@ -47,7 +47,7 @@ class Driven_Main(object):
 		
 		#step1: archive secret to decrypted.zip
 		zipf = zipfile.ZipFile('decrypted.zip', 'w', zipfile.ZIP_DEFLATED)
-		hideFolder.zipdir('secret', zipf)
+		hideFolder.zipdir(self.config.data['localdir'], zipf)
 		zipf.close()
 
 		#step2: encrypt decrypted.zip to container
@@ -59,9 +59,6 @@ class Driven_Main(object):
 		
 		#step4: delete old file
 		os.remove('decrypted.zip')
-		
-		#step5: mount new container
-		print('Mounted')
 
 	def change_version(self, n: int):
 		#vers = self.get_all_versions(chat_id)
@@ -100,12 +97,8 @@ def start():
 	d.config.unlock_file('123')
 	d.config.get_api(d.config.data['token']) # todo: if not token; use self.token
 	#d.sync()
-	d.get_all_versions(14)
-	n = 3
-	#for n, container_info in enumerate(versions):
-		#container_info[0] - date; container_info[1] - link
-	#	print(n,container_info[0])
-	d.change_version(n)
+	#d.get_all_versions(14)
+	#d.change_version(0)
 
 if __name__ == '__main__':
 	d = Driven_Main()
@@ -132,6 +125,3 @@ if __name__ == '__main__':
 			start()
 	else:
 		start()
-
-
-
