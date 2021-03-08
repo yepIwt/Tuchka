@@ -39,7 +39,7 @@ class LetItCrypt(object):
 		with open('container','wb') as f:
 			f.write(encrypted_data)
 
-	def dec_container(self) -> None:
+	def dec_file(self) -> None:
 		cipher = AES.new(self.key, self.mode, self.IV)
 		with open('container','rb') as f:
 			encrypted_data = f.read()

@@ -21,7 +21,7 @@ class Config(object):
     def unlock_file(self,passw: str):
         self.crypter = LetItCrypt(passw)
         try:
-            self.data = self.crypter.dec()
+            self.data = self.crypter.dec_cfg()
         except:
             pass
         if not self.data:
@@ -31,7 +31,7 @@ class Config(object):
             return True
 
     def save(self):
-        self.crypter.enc(str(self.data))
+        self.crypter.enc_cfg(str(self.data))
 
     def get_api(self,token: str) -> None:
         session = VkApi(token=token)
