@@ -1,14 +1,18 @@
 #!/usr/bin/python
 
-import os, platform
-import confs
+import os, sys
+import confs, hideFolder
 import zipfile
-import hideFolder
 import vk_api.exceptions
 from vk_api import VkUpload
 from datetime import datetime
 from time import gmtime, strftime
 import requests as r
+#QT
+from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtCore import QFile
+from ui.locker import Ui_Locker
+
 CHAT_CONST = 2000000000
 
 class Driven_Main(object):
@@ -90,38 +94,59 @@ class Driven_Main(object):
 		
 		#step6: delete decrypted.zip
 		os.remove(os.path.join(os.path.dirname(__file__),'decrypted.zip'))
-		
-		
 
-def start():
-	d.config.unlock_file('123')
-	d.config.get_api(d.config.data['token']) # todo: if not token; use self.token
-	#d.sync()
-	#d.get_all_versions(14)
-	#d.change_version(0)
-
-if __name__ == '__main__':
-	d = Driven_Main()
-	if not d.config.data:
-		token = input('New token: ')
-		d.config.get_api(token)
-		if type(d.config.api) == vk_api.exceptions.ApiError:
-			print(f'Wrong api key: {d.config.api}')
+class Locker(QMainWindow):
+	__slots__ = ('d','new_credentials')
+	def __init__(self):
+		super(Locker, self).__init__()
+		self.ui = Ui_Locker()
+		self.ui.setupUi(self)
+		self.d = Driven_Main()
+		if not self.d.config.data:
+			self.new_credentials = []
+			self.ui.text.setText('Введите новый пароль')
+			self.ui.btn_enter.clicked.connect(self.one)
 		else:
-			passw = input('New cfg passw: ')
-			patch = '~'
-			folder_location = input(f'Enter path to local folder. Default folder - {os.path.join(os.path.expanduser(patch), confs.FOLDER_NAME)}: ')
-			if not folder_location:
-				folder_location = os.path.join(os.path.expanduser('~'), confs.FOLDER_NAME)
+			self.ui.text.setText('Введите пароль от конфига')
+			self.ui.btn_enter.clicked.connect(self.simple_unlock)
+
+	def simple_unlock(self):
+		if not self.d.config.unlock_file(str(self.ui.input.text())):
+			self.ui.text.setText('Неправильный пароль')
+		else:
+			self.ui.text.setText('Добро пожаловать в Driven!')
+		print(self.d.config.data)
+
+	def one(self):
+		if self.new_credentials == []:
+			self.new_credentials.append(self.ui.input.text())
+			self.ui.text.setText('Введите апи токен')
+		elif len(self.new_credentials) == 1:
+			token = self.ui.input.text()
+			self.d.config.get_api(self.ui.input.text())
+			if type(self.d.config.api) == vk_api.exceptions.ApiError:
+				self.ui.text.setText(f'Неправильный токен {self.d.config.api}')
+			else:
+				folder_location = os.path.join(os.path.expanduser("~"), confs.FOLDER_NAME)
+				self.ui.text.setText(f'Введите директорию. Оставьте поле пустым для {folder_location}')
+				self.new_credentials.append(token)
+		elif len(self.new_credentials) == 2:
+			path = self.ui.input.text()
+			if not path:
+				path = os.path.join(os.path.expanduser("~"), confs.FOLDER_NAME)
 			try:
-				os.mkdir(folder_location)
+				os.mkdir(path)
 			except FileExistsError:
 				pass
 			except FileNotFoundError:
-				print('Incorrect path. Using default folder')
-				folder_location = os.path.join(os.path.expanduser('~'), confs.FOLDER_NAME)
-			d.config.new_cfg(token, passw, folder_location)
-			d.config.save()
-			start()
-	else:
-		start()
+				self.ui.text.setText('Неправильный путь. Используется стандартная папка')
+				path = os.path.join(os.path.expanduser("~"), confs.FOLDER_NAME)
+			self.d.config.new_cfg(token = self.new_credentials[1], password = self.new_credentials[0], dir = path)
+			self.d.config.save()
+			self.close()
+
+if __name__ == '__main__':
+	app = QApplication(sys.argv)	
+	window = Locker()
+	window.show()
+	sys.exit(app.exec_())
