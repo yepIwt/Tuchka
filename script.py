@@ -12,6 +12,7 @@ import requests as r
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import QFile
 from ui.locker import Ui_Locker
+from ui.mainwindow import Ui_Menu
 
 CHAT_CONST = 2000000000
 
@@ -101,6 +102,7 @@ class Locker(QMainWindow):
 		super(Locker, self).__init__()
 		self.ui = Ui_Locker()
 		self.ui.setupUi(self)
+		self.w = None
 		self.d = Driven_Main()
 		if not self.d.config.data:
 			self.new_credentials = []
@@ -115,6 +117,9 @@ class Locker(QMainWindow):
 			self.ui.text.setText('Неправильный пароль')
 		else:
 			self.ui.text.setText('Добро пожаловать в Driven!')
+		self.w = MainWindow(self.d)
+		self.close()
+		self.w.show()
 		print(self.d.config.data)
 
 	def one(self):
@@ -127,7 +132,7 @@ class Locker(QMainWindow):
 			if type(self.d.config.api) == vk_api.exceptions.ApiError:
 				self.ui.text.setText(f'Неправильный токен {self.d.config.api}')
 			else:
-				folder_location = os.path.join(os.path.expanduser("~"), confs.FOLDER_NAME)
+				folsder_location = os.path.join(os.path.expanduser("~"), confs.FOLDER_NAME)
 				self.ui.text.setText(f'Введите директорию. Оставьте поле пустым для {folder_location}')
 				self.new_credentials.append(token)
 		elif len(self.new_credentials) == 2:
@@ -144,6 +149,14 @@ class Locker(QMainWindow):
 			self.d.config.new_cfg(token = self.new_credentials[1], password = self.new_credentials[0], dir = path)
 			self.d.config.save()
 			self.close()
+
+class MainWindow(QMainWindow):
+
+	def __init__(self, d: Driven_Main):
+		super(MainWindow, self).__init__()
+		self.ui = Ui_Menu()
+		self.ui.setupUi(self)
+		self.d = d
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)	
