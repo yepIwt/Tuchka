@@ -163,6 +163,8 @@ class MainWindow(QMainWindow):
 		self.ui.setupUi(self)
 		self.d = d
 		self.ui.btn_cfg.clicked.connect(self.edit_config_page)
+		self.ui.btn_sync.clicked.connect(self.sync_process)
+		self.ui.btn_change_version.connect(self.change_version_process)
 		self.ui.btn_dialog.accepted.connect(self.config_changed_true)
 		self.ui.btn_dialog.rejected.connect(lambda: self.ui.windows_maker.setCurrentIndex(0))
 
@@ -208,6 +210,12 @@ class MainWindow(QMainWindow):
 		else:
 			self.ui.info_local.setText('<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Путь к локальной папке</span></p></body></html>')
 			self.ui.info_token.setText('<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Токен вк-апи</span></p></body></html>')
+
+	def sync_process(self):
+		pass
+
+	def change_version_process(self):
+		pass
 
 
 if __name__ == '__main__':
