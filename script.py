@@ -16,6 +16,9 @@ from ui.mainwindow import Ui_Menu
 
 CHAT_CONST = 2000000000
 ERROR_LOCATION = '<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Путь к локальной папке: </span><span style=" font-size:20pt; font-weight:600; color:#ff0000;">Ошибка</span></p></body></html>'
+SUCCES_LOCAL = '<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Путь к локальной папке: </span><span style=" font-size:20pt; font-weight:600; color:#00ff08;">Успех</span></p></body></html>'
+ERROR_TOKEN = '<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Токен вк-апи: </span><span style=" font-size:20pt; font-weight:600; color:#ff0000;">Ошибка</span></p></body></html>'
+SUCCES_TOKEN = '<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Токен вк-апи: </span><span style=" font-size:20pt; font-weight:600; color:#00ff08;">Успех</span></p></body></html>'
 
 class Driven_Main(object):
 
@@ -179,11 +182,32 @@ class MainWindow(QMainWindow):
 		if self.ui.lineEdit_2.text() != self.d.config.data['localdir']:
 			try:
 				os.mkdir(self.ui.lineEdit_2.text())
-			except Exception as err:
-				self.ui.info_local.setText(ERROR_LOCATION)
-				print(err)
-			else:
+			except FileExistsError:
+				self.ui.info_local.setText(SUCCES_LOCAL)
 				self.d.config.data['localdir'] = self.ui.lineEdit_2.text()
+			except Exception as err:
+				self.ui.info_local.setText(ERROR_LOCATION + str(err))
+			else:
+				self.ui.info_local.setText(SUCCES_LOCAL)
+				self.d.config.data['localdir'] = self.ui.lineEdit_2.text()
+
+		elif self.ui.lineEdit.text() != self.d.config.data['token']:
+			self.d.config.get_api(self.ui.lineEdit.text())
+			print(self.d.config.api)
+			if type(self.d.config.api) == vk_api.exceptions.ApiError:
+				self.ui.info_token.setText(ERROR_TOKEN + str(self.d.config.api))
+			else:
+				self.ui.info_token.setText(SUCCES_TOKEN)
+				self.d.config.data['token'] = self.ui.lineEdit.text()
+
+		elif self.d.config.data['archives'][chat_n]['id'] != self.d.config.data['sync_chat']:
+			self.d.config.data['sync_chat'] = self.d.config.data['archives'][chat_n]['id']
+			self.d.config.data['sync_chat_title'] = self.d.config.data['archives'][chat_n]['name']
+			self.d.get_all_versions(self.d.config.data['sync_chat'])
+			self.ui.windows_maker.setCurrentIndex(0)
+		else:
+			self.ui.info_local.setText('<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Путь к локальной папке</span></p></body></html>')
+			self.ui.info_token.setText('<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Токен вк-апи</span></p></body></html>')
 
 
 if __name__ == '__main__':
