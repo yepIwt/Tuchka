@@ -12,8 +12,13 @@ import requests as r
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import QFile
 from ui.locker import Ui_Locker
+from ui.mainwindow import Ui_Menu
 
 CHAT_CONST = 2000000000
+ERROR_LOCATION = '<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Путь к локальной папке: </span><span style=" font-size:20pt; font-weight:600; color:#ff0000;">Ошибка</span></p></body></html>'
+SUCCES_LOCAL = '<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Путь к локальной папке: </span><span style=" font-size:20pt; font-weight:600; color:#00ff08;">Успех</span></p></body></html>'
+ERROR_TOKEN = '<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Токен вк-апи: </span><span style=" font-size:20pt; font-weight:600; color:#ff0000;">Ошибка</span></p></body></html>'
+SUCCES_TOKEN = '<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Токен вк-апи: </span><span style=" font-size:20pt; font-weight:600; color:#00ff08;">Успех</span></p></body></html>'
 
 class Driven_Main(object):
 
@@ -38,6 +43,7 @@ class Driven_Main(object):
 	def get_all_versions(self, chat_id):
 		if chat_id < CHAT_CONST:
 			chat_id += CHAT_CONST
+		self.config.get_api(self.config.data['token'])
 		attacs = self.config.api.messages.getHistoryAttachments(peer_id = chat_id, media_type = 'doc', count = 200)
 		for att in attacs['items']:
 			message = self.config.api.messages.getById(message_ids = att['message_id'])
@@ -101,6 +107,7 @@ class Locker(QMainWindow):
 		super(Locker, self).__init__()
 		self.ui = Ui_Locker()
 		self.ui.setupUi(self)
+		self.w = None
 		self.d = Driven_Main()
 		if not self.d.config.data:
 			self.new_credentials = []
@@ -115,6 +122,9 @@ class Locker(QMainWindow):
 			self.ui.text.setText('Неправильный пароль')
 		else:
 			self.ui.text.setText('Добро пожаловать в Driven!')
+			self.w = MainWindow(self.d)
+			self.close()
+			self.w.show()
 		print(self.d.config.data)
 
 	def one(self):
@@ -144,6 +154,69 @@ class Locker(QMainWindow):
 			self.d.config.new_cfg(token = self.new_credentials[1], password = self.new_credentials[0], dir = path)
 			self.d.config.save()
 			self.close()
+
+class MainWindow(QMainWindow):
+
+	def __init__(self, d: Driven_Main):
+		super(MainWindow, self).__init__()
+		self.ui = Ui_Menu()
+		self.ui.setupUi(self)
+		self.d = d
+		self.ui.btn_cfg.clicked.connect(self.edit_config_page)
+		self.ui.btn_sync.clicked.connect(self.sync_process)
+		self.ui.btn_change_version.connect(self.change_version_process)
+		self.ui.btn_dialog.accepted.connect(self.config_changed_true)
+		self.ui.btn_dialog.rejected.connect(lambda: self.ui.windows_maker.setCurrentIndex(0))
+
+	def edit_config_page(self):
+		self.ui.windows_maker.setCurrentIndex(2)
+		self.ui.lineEdit_2.setText(self.d.config.data['localdir'])
+		self.ui.lineEdit.setText(self.d.config.data['token'])
+		self.ui.comboBox_2.clear()
+		for archive in self.d.config.data['archives']:
+			if self.d.config.data['sync_chat'] == archive['id']:
+				item_n = self.d.config.data['archives'].index(archive)
+			self.ui.comboBox_2.addItem(archive['name'], archive['id'])
+		self.ui.comboBox_2.setCurrentIndex(item_n)
+
+	def config_changed_true(self):
+		chat_n = self.ui.comboBox_2.currentIndex()
+		if self.ui.lineEdit_2.text() != self.d.config.data['localdir']:
+			try:
+				os.mkdir(self.ui.lineEdit_2.text())
+			except FileExistsError:
+				self.ui.info_local.setText(SUCCES_LOCAL)
+				self.d.config.data['localdir'] = self.ui.lineEdit_2.text()
+			except Exception as err:
+				self.ui.info_local.setText(ERROR_LOCATION + str(err))
+			else:
+				self.ui.info_local.setText(SUCCES_LOCAL)
+				self.d.config.data['localdir'] = self.ui.lineEdit_2.text()
+
+		elif self.ui.lineEdit.text() != self.d.config.data['token']:
+			self.d.config.get_api(self.ui.lineEdit.text())
+			print(self.d.config.api)
+			if type(self.d.config.api) == vk_api.exceptions.ApiError:
+				self.ui.info_token.setText(ERROR_TOKEN + str(self.d.config.api))
+			else:
+				self.ui.info_token.setText(SUCCES_TOKEN)
+				self.d.config.data['token'] = self.ui.lineEdit.text()
+
+		elif self.d.config.data['archives'][chat_n]['id'] != self.d.config.data['sync_chat']:
+			self.d.config.data['sync_chat'] = self.d.config.data['archives'][chat_n]['id']
+			self.d.config.data['sync_chat_title'] = self.d.config.data['archives'][chat_n]['name']
+			self.d.get_all_versions(self.d.config.data['sync_chat'])
+			self.ui.windows_maker.setCurrentIndex(0)
+		else:
+			self.ui.info_local.setText('<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Путь к локальной папке</span></p></body></html>')
+			self.ui.info_token.setText('<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Токен вк-апи</span></p></body></html>')
+
+	def sync_process(self):
+		pass
+
+	def change_version_process(self):
+		pass
+
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)	

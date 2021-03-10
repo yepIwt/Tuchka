@@ -66,12 +66,14 @@ class Config(object):
 
     def new_cfg(self,token,password,dir):
         archives = self.get_all_archives(token)
-        #os.mkdir(os.path.join(str(Path.home()),'DrivenCl'))
+        if not archives:
+            self.api.messages.create_new_archive('Hello World!')
+            #archives = self.get_all_archives(token)
+            self.new_cfg(token,password,dir)
         new_config = {
             'token': token,
-            'sync_chat_title':None,
-            'sync_chat':None,
-            'sync_files':[],
+            'sync_chat_title':archives[0]['name'],
+            'sync_chat':archives[0]['id'],
             'archives': archives,
             'localdir': dir,
         }
