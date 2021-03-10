@@ -15,6 +15,7 @@ from ui.locker import Ui_Locker
 from ui.mainwindow import Ui_Menu
 
 CHAT_CONST = 2000000000
+ERROR_LOCATION = '<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Путь к локальной папке: </span><span style=" font-size:20pt; font-weight:600; color:#ff0000;">Ошибка</span></p></body></html>'
 
 class Driven_Main(object):
 
@@ -39,6 +40,7 @@ class Driven_Main(object):
 	def get_all_versions(self, chat_id):
 		if chat_id < CHAT_CONST:
 			chat_id += CHAT_CONST
+		self.config.get_api(self.config.data['token'])
 		attacs = self.config.api.messages.getHistoryAttachments(peer_id = chat_id, media_type = 'doc', count = 200)
 		for att in attacs['items']:
 			message = self.config.api.messages.getById(message_ids = att['message_id'])
@@ -117,9 +119,9 @@ class Locker(QMainWindow):
 			self.ui.text.setText('Неправильный пароль')
 		else:
 			self.ui.text.setText('Добро пожаловать в Driven!')
-		self.w = MainWindow(self.d)
-		self.close()
-		self.w.show()
+			self.w = MainWindow(self.d)
+			self.close()
+			self.w.show()
 		print(self.d.config.data)
 
 	def one(self):
@@ -132,7 +134,7 @@ class Locker(QMainWindow):
 			if type(self.d.config.api) == vk_api.exceptions.ApiError:
 				self.ui.text.setText(f'Неправильный токен {self.d.config.api}')
 			else:
-				folsder_location = os.path.join(os.path.expanduser("~"), confs.FOLDER_NAME)
+				folder_location = os.path.join(os.path.expanduser("~"), confs.FOLDER_NAME)
 				self.ui.text.setText(f'Введите директорию. Оставьте поле пустым для {folder_location}')
 				self.new_credentials.append(token)
 		elif len(self.new_credentials) == 2:
@@ -157,6 +159,32 @@ class MainWindow(QMainWindow):
 		self.ui = Ui_Menu()
 		self.ui.setupUi(self)
 		self.d = d
+		self.ui.btn_cfg.clicked.connect(self.edit_config_page)
+		self.ui.btn_dialog.accepted.connect(self.config_changed_true)
+		self.ui.btn_dialog.rejected.connect(lambda: self.ui.windows_maker.setCurrentIndex(0))
+
+	def edit_config_page(self):
+		self.ui.windows_maker.setCurrentIndex(2)
+		self.ui.lineEdit_2.setText(self.d.config.data['localdir'])
+		self.ui.lineEdit.setText(self.d.config.data['token'])
+		self.ui.comboBox_2.clear()
+		for archive in self.d.config.data['archives']:
+			if self.d.config.data['sync_chat'] == archive['id']:
+				item_n = self.d.config.data['archives'].index(archive)
+			self.ui.comboBox_2.addItem(archive['name'], archive['id'])
+		self.ui.comboBox_2.setCurrentIndex(item_n)
+
+	def config_changed_true(self):
+		chat_n = self.ui.comboBox_2.currentIndex()
+		if self.ui.lineEdit_2.text() != self.d.config.data['localdir']:
+			try:
+				os.mkdir(self.ui.lineEdit_2.text())
+			except Exception as err:
+				self.ui.info_local.setText(ERROR_LOCATION)
+				print(err)
+			else:
+				self.d.config.data['localdir'] = self.ui.lineEdit_2.text()
+
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)	
