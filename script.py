@@ -7,6 +7,7 @@ import vk_api.exceptions
 from vk_api import VkUpload
 from datetime import datetime
 from time import gmtime, strftime
+import time
 import requests as r
 #QT
 from PyQt5.QtWidgets import QApplication, QMainWindow
@@ -163,7 +164,7 @@ class MainWindow(QMainWindow):
 		self.d = d
 		self.ui.btn_cfg.clicked.connect(self.edit_config_page)
 		self.ui.btn_sync.clicked.connect(self.sync_process)
-		self.ui.btn_change_version.connect(self.change_version_process)
+		self.ui.btn_change_version.clicked.connect(self.change_version_process)
 		self.ui.btn_dialog.accepted.connect(self.config_changed_true)
 		self.ui.btn_dialog.rejected.connect(lambda: self.ui.windows_maker.setCurrentIndex(0))
 
@@ -210,7 +211,28 @@ class MainWindow(QMainWindow):
 			self.ui.info_token.setText('<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Токен вк-апи</span></p></body></html>')
 
 	def sync_process(self):
-		pass
+		self.d.config.get_api(self.d.config.data['token'])
+		self.ui.loadbar.setValue(0)
+		self.ui.status_line.setText('')
+		self.ui.windows_maker.setCurrentIndex(1)
+		
+		self.ui.status_line.setText('Archiving secret to decrypted.zip')
+		self.d.sync(1)
+		self.ui.loadbar.setValue(25)
+
+		self.ui.status_line.setText('Encrypting decrypted.zip to container')
+		self.d.sync(2)
+		self.ui.loadbar.setValue(50)
+
+		self.ui.status_line.setText('Sending container')
+		self.d.sync(3)
+		self.ui.loadbar.setValue(75)
+
+		self.ui.status_line.setText('Deleting old file')
+		self.d.sync(4)
+		self.ui.loadbar.setValue(100)
+
+		time.sleep(1)
 
 	def change_version_process(self):
 		pass
