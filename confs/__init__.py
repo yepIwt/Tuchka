@@ -62,14 +62,14 @@ class Config(object):
         if not all_archives:
             new_id = self.create_new_archive('New Archive')
             all_archives.append({'name':'New Archive', 'id': PEER_CONST+new_id})
-        self.data['archives'] = all_archives
         return all_archives
 
     def new_cfg(self,token,password,dir):
+        self.get_api(token)
         archives = self.get_all_archives(token)
         if not archives:
             self.api.messages.create_new_archive('Hello World!')
-            #archives = self.get_all_archives(token)
+            archives = self.get_all_archives(token)
             self.new_cfg(token,password,dir)
         new_config = {
             'token': token,
