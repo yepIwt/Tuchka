@@ -6,32 +6,33 @@ from Crypto.Cipher import DES
 
 SYNC_CODE = "Archive: RatherCloudy"
 PEER_CONST = 2000000000
+FOLDER_NAME = 'DrivenCloud'
 
 class Config(object):
 
     __slots__ = ('crypter','data','api','is_decrypted')
 
     def __init__(self):
+        self.crypter = None
         if not os.path.exists('data'):
             self.data = False
         else:
             self.data = True
 
-    def unlock_file(self,passw: str):
+    def unlock_file(self,passw: str) -> bool:
         self.crypter = LetItCrypt(passw)
-        self.data = self.crypter.dec()
+        try:
+            self.data = self.crypter.dec_cfg()
+        except:
+            pass
         if not self.data:
             return False
         else:
             self.data = ast.literal_eval(self.data)
             return True
 
-    def create_config_file(self, passw: str):
-        f = open('data','w')
-        f.close()
-
     def save(self):
-        self.crypter.enc(str(self.data))
+        self.crypter.enc_cfg(str(self.data))
 
     def get_api(self,token: str) -> None:
         session = VkApi(token=token)
@@ -63,15 +64,20 @@ class Config(object):
             all_archives.append({'name':'New Archive', 'id': PEER_CONST+new_id})
         return all_archives
 
-    def new_cfg(self,token,password):
+    def new_cfg(self,token,password,dir):
+        self.get_api(token)
         archives = self.get_all_archives(token)
+        if not archives:
+            self.api.messages.create_new_archive('Hello World!')
+            archives = self.get_all_archives(token)
+            self.new_cfg(token,password,dir)
         new_config = {
             'token': token,
-            'sync_chat_title':None,
-            'sync_chat':None,
-            'sync_files':[],
+            'sync_chat_title':archives[0]['name'],
+            'sync_chat':archives[0]['id'],
             'archives': archives,
+            'localdir': dir,
+            'currentVersion':None,
         }
         self.data = new_config
         self.crypter = LetItCrypt(password)
-        self.crypter.enc(str(self.data))
