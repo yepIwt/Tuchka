@@ -62,6 +62,7 @@ class Config(object):
         if not all_archives:
             new_id = self.create_new_archive('New Archive')
             all_archives.append({'name':'New Archive', 'id': PEER_CONST+new_id})
+        self.data['archives'] = all_archives
         return all_archives
 
     def new_cfg(self,token,password,dir):
@@ -76,6 +77,7 @@ class Config(object):
             'sync_chat':archives[0]['id'],
             'archives': archives,
             'localdir': dir,
+            'currentVersion':None,
         }
         self.data = new_config
         self.crypter = LetItCrypt(password)
