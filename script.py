@@ -82,8 +82,8 @@ class Driven_Main(object):
 			#step2: umount container
 			try:
 				os.rmdir(self.config.data['localdir'])
-			except:
-				pass # TODO: trace this moment
+			except Exception as err:
+				return err # TODO: trace this moment
 		elif step == 3:
 			#step3: delete secret and container
 			os.remove(os.path.join(os.path.dirname(__file__), 'container'))
@@ -194,7 +194,6 @@ class MainWindow(QMainWindow):
 
 		elif self.ui.lineEdit.text() != self.d.config.data['token']:
 			self.d.config.get_api(self.ui.lineEdit.text())
-			print(self.d.config.api)
 			if type(self.d.config.api) == vk_api.exceptions.ApiError:
 				self.ui.info_token.setText(ERROR_TOKEN + str(self.d.config.api))
 			else:
