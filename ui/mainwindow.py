@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Menu(object):
     def setupUi(self, Menu):
         Menu.setObjectName("Menu")
-        Menu.resize(774, 444)
+        Menu.resize(412, 276)
         self.centralwidget = QtWidgets.QWidget(Menu)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -134,9 +134,6 @@ class Ui_Menu(object):
         self.horizontalLayout_3.addWidget(self.label)
         self.comboBox = QtWidgets.QComboBox(self.page_2)
         self.comboBox.setObjectName("comboBox")
-        self.comboBox.addItem("")
-        self.comboBox.addItem("")
-        self.comboBox.addItem("")
         self.horizontalLayout_3.addWidget(self.comboBox)
         self.gridLayout_2.addLayout(self.horizontalLayout_3, 1, 1, 1, 1)
         spacerItem13 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
@@ -171,6 +168,3 @@ class Ui_Menu(object):
         self.info_chat.setText(_translate("Menu", "<html><head/><body><p align=\"justify\"><span style=\" font-size:20pt; font-weight:600;\">Чат для синхронизации</span></p></body></html>"))
         self.comboBox_2.setItemText(0, _translate("Menu", "14"))
         self.label.setText(_translate("Menu", "<html><head/><body><p><span style=\" font-size:20pt; font-weight:600;\">Версия</span></p></body></html>"))
-        self.comboBox.setItemText(0, _translate("Menu", "1"))
-        self.comboBox.setItemText(1, _translate("Menu", "2"))
-        self.comboBox.setItemText(2, _translate("Menu", "3"))

@@ -65,10 +65,11 @@ class Config(object):
         return all_archives
 
     def new_cfg(self,token,password,dir):
+        self.get_api(token)
         archives = self.get_all_archives(token)
         if not archives:
             self.api.messages.create_new_archive('Hello World!')
-            #archives = self.get_all_archives(token)
+            archives = self.get_all_archives(token)
             self.new_cfg(token,password,dir)
         new_config = {
             'token': token,
@@ -76,6 +77,7 @@ class Config(object):
             'sync_chat':archives[0]['id'],
             'archives': archives,
             'localdir': dir,
+            'currentVersion':None,
         }
         self.data = new_config
         self.crypter = LetItCrypt(password)
