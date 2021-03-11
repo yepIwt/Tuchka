@@ -53,22 +53,22 @@ class Driven_Main(object):
 			self.versions.append([version, file_url])
 		return self.versions
 
-	def sync(self):
-		
-		#step1: archive secret to decrypted.zip
-		zipf = zipfile.ZipFile('decrypted.zip', 'w', zipfile.ZIP_DEFLATED)
-		hideFolder.zipdir(self.config.data['localdir'], zipf)
-		zipf.close()
-
-		#step2: encrypt decrypted.zip to container
-		self.config.crypter.enc_file()
-
-		#step3: send container
-		ow, fi = self.upload_file('container')
-		self.load_file_to_conv(ow,fi, 14)
-		
-		#step4: delete old file
-		os.remove('decrypted.zip')
+	def sync(self, step: int):
+		if step == 1:
+			#step1: archive secret to decrypted.zip
+			zipf = zipfile.ZipFile('decrypted.zip', 'w', zipfile.ZIP_DEFLATED)
+			hideFolder.zipdir(self.config.data['localdir'], zipf)
+			zipf.close()
+		elif step == 2:
+			#step2: encrypt decrypted.zip to container
+			self.config.crypter.enc_file()
+		elif step == 3:
+			#step3: send container
+			ow, fi = self.upload_file('container')
+			self.load_file_to_conv(ow,fi, 14)
+		elif step == 4::
+			#step4: delete old file
+			os.remove('decrypted.zip')
 
 	def change_version(self, n: int):
 		#vers = self.get_all_versions(chat_id)
@@ -79,6 +79,11 @@ class Driven_Main(object):
 		with open('containerNEW','wb') as f:
 			f.write(file_in_url.content)
 		print('Downloaded new container')
+
+			os.rmdir(self.config.data['localdir'])
+		except:
+			pass # TODO: trace this moment
+		print('Local folder cleared')
 
 		#step2: umount container
 		try:
