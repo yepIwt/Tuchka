@@ -66,45 +66,39 @@ class Driven_Main(object):
 			#step3: send container
 			ow, fi = self.upload_file('container')
 			self.load_file_to_conv(ow,fi, 14)
-		elif step == 4::
+		elif step == 4:
 			#step4: delete old file
 			os.remove('decrypted.zip')
 
-	def change_version(self, n: int):
+	def change_version(self, n: int, step: int):
 		#vers = self.get_all_versions(chat_id)
 		link = self.versions[n][-1]
-
-		#step1: download new container
-		file_in_url = r.get(link)
-		with open('containerNEW','wb') as f:
-			f.write(file_in_url.content)
-		print('Downloaded new container')
-
-			os.rmdir(self.config.data['localdir'])
-		except:
-			pass # TODO: trace this moment
-		print('Local folder cleared')
-
-		#step2: umount container
-		try:
-			os.rmdir(self.config.data['localdir'])
-		except:
-			pass # TODO: trace this moment
-		print('Local folder cleared')
-
-		#step3: delete secret and container
-		os.remove(os.path.join(os.path.dirname(__file__), 'container'))
-		#step3.1: rename containers
-		os.rename('containerNEW','container')
-		
-		#step4: unlock container
-		self.config.crypter.dec_file()
-
-		#step5: unzip decrypted.zip 
-		hideFolder.unzipdir('decrypted.zip',os.path.join( os.path.dirname(self.config.data['localdir']),''))
-		
-		#step6: delete decrypted.zip
-		os.remove(os.path.join(os.path.dirname(__file__),'decrypted.zip'))
+		if step == 1:
+			#step1: download new container
+			file_in_url = r.get(link)
+			with open('containerNEW','wb') as f:
+				f.write(file_in_url.content)
+		elif step == 2:
+			#step2: umount container
+			try:
+				os.rmdir(self.config.data['localdir'])
+			except:
+				pass # TODO: trace this moment
+		elif step == 3:
+			#step3: delete secret and container
+			os.remove(os.path.join(os.path.dirname(__file__), 'container'))
+		elif step == 4:
+			#step4: rename containers
+			os.rename('containerNEW','container')
+		elif step == 5:
+			#step5: unlock container
+			self.config.crypter.dec_file()
+		elif step == 6:
+			#step6: unzip decrypted.zip 
+			hideFolder.unzipdir('decrypted.zip',os.path.join( os.path.dirname(self.config.data['localdir']),''))
+		elif step == 7:
+			#step6: delete decrypted.zip
+			os.remove(os.path.join(os.path.dirname(__file__),'decrypted.zip'))
 
 class Locker(QMainWindow):
 	__slots__ = ('d','new_credentials')
