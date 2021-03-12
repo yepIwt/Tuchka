@@ -150,8 +150,6 @@ class Locker(QMainWindow):
                 path = os.path.join(os.path.expanduser("~"), confs.FOLDER_NAME)
             try:
                 os.mkdir(path)
-                f = open('container','w')
-                f.close()
             except FileExistsError:
                 pass
             except FileNotFoundError:
@@ -160,12 +158,13 @@ class Locker(QMainWindow):
             self.d.config.new_cfg(token=self.new_credentials[1], password=self.new_credentials[0], dir=path)
             self.d.config.save()
             self.ui.text.setText('Добро пожаловать в Driven!')
+            f = open('container','w')
+            f.close()
             self.d.config.get_api(self.d.config.data['token'])
             self.d.config.get_all_archives(self.d.config.data['token'])
             self.w = MainWindow(self.d)
             self.close()
             self.w.show()
-
 
 class MainWindow(QMainWindow):
 
