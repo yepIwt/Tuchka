@@ -1,5 +1,11 @@
 #!/usr/bin/python
 
+"""
+:authors: yepIwt
+:license: Apache License, Version 2.0, see LICENSE file
+:copyright: (c) 2021 yepiwt
+"""
+
 import os, sys, shutil
 import confs
 import hideFolder
@@ -8,7 +14,6 @@ import vk_api.exceptions
 from vk_api import VkUpload
 from datetime import datetime
 from time import gmtime, strftime
-import time
 import requests as r
 # QT
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDialogButtonBox
@@ -53,51 +58,39 @@ class Driven_Main(object):
                 message = self.config.api.messages.getById(message_ids=att['message_id'])
                 file_url = message['items'][0]["attachments"][0]['doc']["url"]
                 version = message['items'][0]['text'].split('Container: ')[-1]
-                #datetime.strptime('2021-03-01 01:32:23', '%Y-%m-%d %H:%M:%S')
                 self.versions.append([version, file_url])
         return self.versions
 
     def sync(self, step: int):
         if step == 1:
-            # step1: archive secret to decrypted.zip
             zipf = zipfile.ZipFile('decrypted.zip', 'w', zipfile.ZIP_DEFLATED)
             hideFolder.zipdir(self.config.data['localdir'], zipf)
             zipf.close()
         elif step == 2:
-            # step2: encrypt decrypted.zip to container
             self.config.crypter.enc_file()
         elif step == 3:
-            # step3: send container
             ow, fi = self.upload_file('container')
             self.load_file_to_conv(ow, fi, 14)
         elif step == 4:
-            # step4: delete old file
             os.remove('decrypted.zip')
 
     def change_version(self, n: int, step: int):
         link = self.versions[n][-1]
         if step == 1:
-            # step1: download new container
             file_in_url = r.get(link)
             with open('containerNEW', 'wb') as f:
                 f.write(file_in_url.content)
         elif step == 2:
-            # step2: umount container
             shutil.rmtree(self.config.data['localdir'])
         elif step == 3:
-            # step3: delete secret and container
             os.remove(os.path.join(os.path.dirname(__file__), 'container'))
         elif step == 4:
-            # step4: rename containers
             os.rename('containerNEW', 'container')
         elif step == 5:
-            # step5: unlock container
             self.config.crypter.dec_file()
         elif step == 6:
-            # step6: unzip decrypted.zip
             hideFolder.unzipdir('decrypted.zip', os.path.join(os.path.dirname(self.config.data['localdir']), ''))
         elif step == 7:
-            # step7: delete decrypted.zip
             os.remove(os.path.join(os.path.dirname(__file__), 'decrypted.zip'))
 
 class Locker(QMainWindow):
@@ -157,7 +150,14 @@ class Locker(QMainWindow):
                 path = os.path.join(os.path.expanduser("~"), confs.FOLDER_NAME)
             self.d.config.new_cfg(token=self.new_credentials[1], password=self.new_credentials[0], dir=path)
             self.d.config.save()
+            self.ui.text.setText('Добро пожаловать в Driven!')
+            f = open('container','w') # "Containter" bug patch
+            f.close()
+            self.d.config.get_api(self.d.config.data['token'])
+            self.d.config.get_all_archives(self.d.config.data['token'])
+            self.w = MainWindow(self.d)
             self.close()
+            self.w.show()
 
 class MainWindow(QMainWindow):
 
