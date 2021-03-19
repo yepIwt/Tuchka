@@ -6,43 +6,49 @@ class LetItCrypt(object):
 
 	def __init__(self, passw: str):
 		self.key = hashlib.sha256(passw.encode()).digest()
-		self.mode = AES.MODE_CBC
-		self.IV = 'This is an IV456'
+		self.mode = AES.MODE_EAX
 
 	def pad(self, text: bytes) -> bytes:
 		while len(text) % 16 != 0:
-			text = text + b' '
+			text += b' '
 		return text
 
 	def enc_cfg(self, data: str) -> None:
-		cipher = AES.new(self.key, self.mode, self.IV)
-		padded = self.pad(data.encode())
-		encrypted_data = cipher.encrypt(padded)
-		with open('data','wb') as f:
-			f.write(encrypted_data)
+		cipher = AES.new(self.key, self.mode)
+		ciphertext, tag = cipher.encrypt_and_digest(data.encode())
+		file_out = open("data", "wb")
+		[ file_out.write(x) for x in (cipher.nonce, tag, ciphertext) ]
+		file_out.close()
 
 	def dec_cfg(self) -> str:
-		cipher = AES.new(self.key, self.mode, self.IV)
-		with open('data','rb') as f:
-			encrypted_data = f.read()
+		file_in = open("data", "rb")
+		nonce, tag, ciphertext = [ file_in.read(x) for x in (16, 16, -1) ]
+		cipher = AES.new(self.key, self.mode, nonce)
 		try:
-			return cipher.decrypt(encrypted_data).rstrip().decode()
-		except:
+			data = cipher.decrypt_and_verify(ciphertext, tag)
+		except ValueError:
 			return ''
+		else:
+			return data
 
 	def enc_file(self) -> None:
-		cipher = AES.new(self.key, self.mode, self.IV)
+		cipher = AES.new(self.key, self.mode)
 		with open('decrypted.zip','rb') as f:
 			decrypted_data = f.read()
-		padded = self.pad(decrypted_data)
-		encrypted_data = cipher.encrypt(padded)
-		with open('container','wb') as f:
-			f.write(encrypted_data)
+		ciphertext, tag = cipher.encrypt_and_digest(decrypted_data)
+		file_out = open("container", "wb")
+		[ file_out.write(x) for x in (cipher.nonce, tag, ciphertext) ]
+		file_out.close()
 
 	def dec_file(self) -> None:
-		cipher = AES.new(self.key, self.mode, self.IV)
-		with open('container','rb') as f:
-			encrypted_data = f.read()
-		decrypted_data = cipher.decrypt(encrypted_data)
-		with open('decrypted.zip','wb') as f:
-			f.write(decrypted_data)
+		file_in = open("container", "rb")
+		nonce, tag, ciphertext = [ file_in.read(x) for x in (16, 16, -1) ]
+		cipher = AES.new(self.key, self.mode, nonce)
+		try:
+			data = cipher.decrypt_and_verify(ciphertext, tag)
+		except:
+			print('Something wrong with container')
+			exit()
+		else:
+			with open('decrypted.zip','wb') as f:
+				f.write(data)

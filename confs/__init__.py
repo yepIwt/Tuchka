@@ -24,11 +24,11 @@ class Config(object):
         try:
             self.data = self.crypter.dec_cfg()
         except:
-            pass
+            print('Bad password for config')
         if not self.data:
             return False
         else:
-            self.data = ast.literal_eval(self.data)
+            self.data = ast.literal_eval(self.data.decode())
             return True
 
     def save(self):
