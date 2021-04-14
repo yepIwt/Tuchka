@@ -10,19 +10,12 @@ from datetime import datetime
 from time import gmtime, strftime
 import requests as r
 
-from PyQt5 import Qt, QtCore, QtWidgets
+from PyQt5 import Qt
 #uis
-import ui
-
-class MainWindow(QtWidgets.QMainWindow):
-
-    def __init__(self):
-        super(MainWindow, self).__init__()
-        self.ui = ui.NewRegister.Ui_MainWindow()
-        self.ui.setupUi(self)
+import classes
 
 if __name__ == '__main__':
     app = Qt.QApplication(sys.argv)
-    window = MainWindow()
+    window = classes.MainWindow()
     window.show()
     sys.exit(app.exec_())
