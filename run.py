@@ -9,13 +9,16 @@ from vk_api import VkUpload
 from datetime import datetime
 from time import gmtime, strftime
 import requests as r
-
-from PyQt5 import Qt
 #uis
 import classes
+from PyQt5 import Qt
 
 if __name__ == '__main__':
-    app = Qt.QApplication(sys.argv)
-    window = classes.MainWindow()
-    window.show()
-    sys.exit(app.exec_())
+    encrypted_cfg = confs.Config()
+    if not encrypted_cfg.data: # Если нет файлика с настройками
+        passw, token, directory = classes.start_registration()
+        encrypted_cfg.new_cfg(token,passw,directory)
+        encrypted_cfg.save()
+    else:
+        unlocked_cfg = classes.start_unlocker(encrypted_cfg)
+        print(unlocked_cfg.data)
