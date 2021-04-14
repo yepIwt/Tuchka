@@ -2,6 +2,8 @@ import ui
 import sys
 from PyQt5 import Qt, QtCore, QtWidgets
 
+LOGS_FORM = '<html><head/><body><p align="center"><span style=" font-size:16pt; color:#cc4194;">{}</span></p></body></html>'
+
 class RegisterForm(QtWidgets.QMainWindow):
 
     def __init__(self, register_mode: bool, cfg = None):
@@ -45,6 +47,24 @@ class RegisterForm(QtWidgets.QMainWindow):
             self.close()
         self.ui.texter.clear()
 
+class ActionCenter(QtWidgets.QMainWindow):
+
+    def __init__(self):
+        super(ActionCenter, self).__init__()
+        self.ui = ui.NewActionCenter.Ui_MainWindow()
+        self.ui.setupUi(self)
+        self.ui.btn_download.clicked.connect(self.download)
+        self.ui.btn_upload.clicked.connect(self.upload)
+
+    def download(self):
+        print('donwload')
+        self.ui.logs_label.setText(LOGS_FORM.format('Получение версий'))
+        self.ui.progress_bar.setValue(10)
+        self.ui.stackedWidget.setCurrentIndex(2) # Страница с лоадбаром
+
+    def upload(self):
+        print('upload')
+
 def start_registration():
     app = Qt.QApplication(sys.argv)
     window = RegisterForm(1)
@@ -60,3 +80,9 @@ def start_unlocker(config_obj):
     window.show()
     app.exec_()
     return window.cfg
+
+def start_actions():
+    app = Qt.QApplication(sys.argv)
+    window = ActionCenter()
+    window.show()
+    sys.exit(app.exec_())

@@ -21,4 +21,6 @@ if __name__ == '__main__':
         encrypted_cfg.save()
     else:
         unlocked_cfg = classes.start_unlocker(encrypted_cfg)
-        print(unlocked_cfg.data)
+        unlocked_cfg.get_api(unlocked_cfg.data['token'])
+        unlocked_cfg.get_all_archives(unlocked_cfg.data['token'])
+    classes.start_actions()
