@@ -64,7 +64,7 @@ class Ui_MainWindow(object):
         self.btn_download.setStyleSheet("border: black;")
         self.btn_download.setText("")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/newPrefix/arrow.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(":/newPrefix/icons/arrow_down.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.btn_download.setIcon(icon)
         self.btn_download.setIconSize(QtCore.QSize(50, 60))
         self.btn_download.setObjectName("btn_download")
@@ -78,7 +78,7 @@ class Ui_MainWindow(object):
         self.btn_upload.setStyleSheet("border: black;")
         self.btn_upload.setText("")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(":/newPrefix/arrowdown.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon1.addPixmap(QtGui.QPixmap(":/newPrefix/icons/arrow_up.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.btn_upload.setIcon(icon1)
         self.btn_upload.setIconSize(QtCore.QSize(50, 60))
         self.btn_upload.setObjectName("btn_upload")
@@ -152,7 +152,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.stackedWidget.setCurrentIndex(2)
+        self.stackedWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -168,4 +168,4 @@ class Ui_MainWindow(object):
         self.vers_block.setItemText(5, _translate("MainWindow", "New Item"))
         self.btn_ok.setText(_translate("MainWindow", "OK"))
         self.logs_label.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:16pt; color:#cc4194;\">Скачивание  архива</span></p></body></html>"))
-import strelochki_rc
+from .src import prefix_rc

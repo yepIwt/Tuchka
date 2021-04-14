@@ -71,7 +71,7 @@
           <string notr="true">background-color: lightgray;</string>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="str_button">
           <property name="styleSheet">
@@ -108,8 +108,8 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="../../Dropbox/123/strelochki.qrc">
-                     <normaloff>:/newPrefix/arrow.png</normaloff>:/newPrefix/arrow.png</iconset>
+                    <iconset resource="prefix.qrc">
+                     <normaloff>:/newPrefix/icons/arrow_down.png</normaloff>:/newPrefix/icons/arrow_down.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
@@ -134,8 +134,8 @@
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="../../Dropbox/123/strelochki.qrc">
-                     <normaloff>:/newPrefix/arrowdown.png</normaloff>:/newPrefix/arrowdown.png</iconset>
+                    <iconset resource="prefix.qrc">
+                     <normaloff>:/newPrefix/icons/arrow_up.png</normaloff>:/newPrefix/icons/arrow_up.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
@@ -305,7 +305,7 @@ QProgressBar::chunk{
   </widget>
  </widget>
  <resources>
-  <include location="../../Dropbox/123/strelochki.qrc"/>
+  <include location="prefix.qrc"/>
  </resources>
  <connections/>
 </ui>
