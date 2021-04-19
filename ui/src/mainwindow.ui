@@ -18,7 +18,7 @@
     <item>
      <widget class="QStackedWidget" name="windows_maker">
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="pagr_main">
        <layout class="QGridLayout" name="gridLayout">

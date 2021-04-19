@@ -20,13 +20,14 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QDialogButtonBox
 from PyQt5.QtCore import QFile
 from ui.locker import Ui_Locker
 from ui.mainwindow import Ui_Menu
-
+import ui
 CHAT_CONST = 2000000000
 ERROR_LOCATION = '<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Путь к локальной папке: </span><span style=" font-size:20pt; font-weight:600; color:#ff0000;">Ошибка</span></p></body></html>'
 SUCCES_LOCAL = '<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Путь к локальной папке: </span><span style=" font-size:20pt; font-weight:600; color:#00ff08;">Успех</span></p></body></html>'
 ERROR_TOKEN = '<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Токен вк-апи: </span><span style=" font-size:20pt; font-weight:600; color:#ff0000;">Ошибка</span></p></body></html>'
 SUCCES_TOKEN = '<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Токен вк-апи: </span><span style=" font-size:20pt; font-weight:600; color:#00ff08;">Успех</span></p></body></html>'
 
+LOGS_FORM = '<html><head/><body><p align="center"><span style=" font-size:16pt; color:#cc4194;">{}</span></p></body></html>'
 
 class Driven_Main(object):
 
@@ -99,23 +100,26 @@ class Locker(QMainWindow):
 
     def __init__(self):
         super(Locker, self).__init__()
-        self.ui = Ui_Locker()
+        self.ui = ui.NewRegister.Ui_MainWindow()
         self.ui.setupUi(self)
         self.w = None
         self.d = Driven_Main()
+        self.ui.input.clear()
         if not self.d.config.data:
             self.new_credentials = []
-            self.ui.text.setText('Введите новый пароль')
-            self.ui.btn_enter.clicked.connect(self.one)
+            self.ui.input.setPlaceholderText('Введите новый пароль')
+            self.ui.input.returnPressed.connect(self.one)
         else:
-            self.ui.text.setText('Введите пароль от конфига')
-            self.ui.btn_enter.clicked.connect(self.simple_unlock)
+            self.ui.input.setPlaceholderText('Введите пароль от конфига')
+            self.ui.input.returnPressed.connect(self.simple_unlock)
 
     def simple_unlock(self):
         if not self.d.config.unlock_file(str(self.ui.input.text())):
-            self.ui.text.setText('Неправильный пароль')
+            self.ui.input.clear()
+            self.ui.input.setPlaceholderText('Неправильный пароль')
         else:
-            self.ui.text.setText('Добро пожаловать в Driven!')
+            self.ui.input.clear()
+            self.ui.input.setPlaceholderText('Добро пожаловать в Driven!')
             self.d.config.get_api(self.d.config.data['token'])
             self.d.config.get_all_archives(self.d.config.data['token'])
             self.w = MainWindow(self.d)
@@ -126,16 +130,19 @@ class Locker(QMainWindow):
     def one(self):
         if self.new_credentials == []:
             self.new_credentials.append(self.ui.input.text())
-            self.ui.text.setText('Введите апи токен')
+            self.ui.input.clear()
+            self.ui.input.setPlaceholderText('Введите апи токен')
         elif len(self.new_credentials) == 1:
             token = self.ui.input.text()
             self.d.config.get_api(self.ui.input.text())
             if type(self.d.config.api) == vk_api.exceptions.ApiError:
-                self.ui.text.setText(f'Неправильный токен {self.d.config.api}')
+                self.ui.input.clear()
+                self.ui.input.setPlaceholderText(f'Неправильный токен {self.d.config.api}')
             else:
                 folder_location = os.path.join(
                     os.path.expanduser("~"), confs.FOLDER_NAME)
-                self.ui.text.setText(f'Введите директорию. Оставьте поле пустым для {folder_location}')
+                self.ui.input.clear()
+                self.ui.input.setPlaceholderText(f'Введите директорию. Оставьте поле пустым для {folder_location}')
                 self.new_credentials.append(token)
         elif len(self.new_credentials) == 2:
             path = self.ui.input.text()
@@ -146,11 +153,13 @@ class Locker(QMainWindow):
             except FileExistsError:
                 pass
             except FileNotFoundError:
-                self.ui.text.setText('Неправильный путь. Используется стандартная папка')
+                self.ui.input.clear()
+                self.ui.text.setPlaceholderText('Неправильный путь. Используется стандартная папка')
                 path = os.path.join(os.path.expanduser("~"), confs.FOLDER_NAME)
             self.d.config.new_cfg(token=self.new_credentials[1], password=self.new_credentials[0], dir=path)
             self.d.config.save()
-            self.ui.text.setText('Добро пожаловать в Driven!')
+            self.ui.input.clear()
+            self.ui.input.setPlaceholderText('Добро пожаловать в Driven!')
             f = open('container','w') # "Containter" bug patch
             f.close()
             self.d.config.get_api(self.d.config.data['token'])
@@ -163,14 +172,15 @@ class MainWindow(QMainWindow):
 
     def __init__(self, d: Driven_Main):
         super(MainWindow, self).__init__()
-        self.ui = Ui_Menu()
+        self.ui = ui.NewActionCenter.Ui_MainWindow()
         self.ui.setupUi(self)
+        self.ui.comboBox.clear()
         self.d = d
-        self.ui.btn_cfg.clicked.connect(self.edit_config_page)
+        #self.ui.btn_cfg.clicked.connect(self.edit_config_page)
         self.ui.btn_sync.clicked.connect(self.sync_process)
         self.ui.btn_change_version.clicked.connect(self.change_version_prepare)
-        self.ui.btn_dialog.accepted.connect(self.config_changed_true)
-        self.ui.btn_dialog.rejected.connect(lambda: self.ui.windows_maker.setCurrentIndex(0))
+        #self.ui.btn_dialog.accepted.connect(self.config_changed_true)
+        #self.ui.btn_dialog.rejected.connect(lambda: self.ui.windows_maker.setCurrentIndex(0))
 
     def edit_config_page(self):
         self.ui.windows_maker.setCurrentIndex(2)
@@ -202,25 +212,27 @@ class MainWindow(QMainWindow):
             self.d.config.data['sync_chat_title'] = self.d.config.data['archives'][chat_n]['name']
             self.d.config.save()
 
+    def log(self,text):
+        self.ui.status_line.setText(LOGS_FORM.format(text))
+
     def sync_process(self):
         self.ui.loadbar.setValue(0)
-        self.ui.status_line.setText('')
-        self.ui.windows_maker.setCurrentIndex(1)
-        self.ui.status_line.setText('Syncing...')
+        self.ui.windows_maker.setCurrentIndex(2)
+        self.log('Syncing...')
 
-        self.ui.status_line.setText('Archiving secret to decrypted.zip')
+        self.log('Archiving secret to decrypted.zip')
         self.d.sync(1)
         self.ui.loadbar.setValue(25)
 
-        self.ui.status_line.setText('Encrypting decrypted.zip to container')
+        self.log('Encrypting decrypted.zip to container')
         self.d.sync(2)
         self.ui.loadbar.setValue(50)
 
-        self.ui.status_line.setText('Sending container')
+        self.log('Sending container')
         self.d.sync(3)
         self.ui.loadbar.setValue(75)
 
-        self.ui.status_line.setText('Deleting old file')
+        self.log('Deleting old file')
         self.d.sync(4)
         self.ui.loadbar.setValue(100)
         self.ui.windows_maker.setCurrentIndex(0)
@@ -229,39 +241,38 @@ class MainWindow(QMainWindow):
         if not self.ui.comboBox.count():
             for vers in self.d.get_all_versions(self.d.config.data['sync_chat']):
                 self.ui.comboBox.addItem(vers[0], vers[1])
-        self.ui.buttonBox.button(QDialogButtonBox.Apply).clicked.connect(self.change_version_process)
-        self.ui.buttonBox.rejected.connect(lambda: self.ui.windows_maker.setCurrentIndex(0))
-        self.ui.windows_maker.setCurrentIndex(3)
+        self.ui.buttonBox.clicked.connect(self.change_version_process)
+        #self.ui.buttonBox.rejected.connect(lambda: self.ui.windows_maker.setCurrentIndex(0))
+        self.ui.windows_maker.setCurrentIndex(1)
 
     def changing_version(self, vers_n: int):
-        self.ui.status_line.setText('')
         self.ui.loadbar.setValue(0)
         self.ui.windows_maker.setCurrentIndex(1)
-        self.ui.status_line.setText('Download new container')
+        self.log('Download new container')
         self.d.change_version(vers_n,1)
         self.ui.loadbar.setValue(15)
 
-        self.ui.status_line.setText('Umount container')
+        self.log('Umount container')
         self.d.change_version(vers_n,2)
         self.ui.loadbar.setValue(30)
 
-        self.ui.status_line.setText('Delete secret and container')
+        self.log('Delete secret and container')
         self.d.change_version(vers_n,3)
         self.ui.loadbar.setValue(45)
 
-        self.ui.status_line.setText('Rename containers')
+        self.log('Rename containers')
         self.d.change_version(vers_n,4)
         self.ui.loadbar.setValue(60)
 
-        self.ui.status_line.setText('Unlock container')
+        self.log('Unlock container')
         self.d.change_version(vers_n,5)
         self.ui.loadbar.setValue(75)
 
-        self.ui.status_line.setText('Unzip decrypted.zip')
+        self.log('Unzip decrypted.zip')
         self.d.change_version(vers_n,6)
         self.ui.loadbar.setValue(90)
 
-        self.ui.status_line.setText('Delete decrypted.zip')
+        self.log('Delete decrypted.zip')
         self.d.change_version(vers_n,7)
         self.ui.loadbar.setValue(100)
 

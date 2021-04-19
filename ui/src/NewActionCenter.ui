@@ -66,7 +66,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QStackedWidget" name="stackedWidget">
+        <widget class="QStackedWidget" name="windows_maker">
          <property name="styleSheet">
           <string notr="true">background-color: lightgray;</string>
          </property>
@@ -94,7 +94,7 @@
                   <number>0</number>
                  </property>
                  <item>
-                  <widget class="QPushButton" name="btn_download">
+                  <widget class="QPushButton" name="btn_change_version">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
                      <horstretch>0</horstretch>
@@ -120,7 +120,7 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QPushButton" name="btn_upload">
+                  <widget class="QPushButton" name="btn_sync">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
                      <horstretch>0</horstretch>
@@ -173,7 +173,7 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_4">
              <item>
-              <widget class="QComboBox" name="vers_block">
+              <widget class="QComboBox" name="comboBox">
                <property name="styleSheet">
                 <string notr="true">QComboBox{
 	color: #cc4194
@@ -224,7 +224,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="btn_ok">
+              <widget class="QPushButton" name="buttonBox">
                <property name="styleSheet">
                 <string notr="true">color: #cc4194</string>
                </property>
@@ -243,7 +243,7 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
-            <widget class="QProgressBar" name="progress_bar">
+            <widget class="QProgressBar" name="loadbar">
              <property name="styleSheet">
               <string notr="true">QProgressBar{
 	background-color: black;
@@ -262,7 +262,7 @@ QProgressBar::chunk{
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="logs_label">
+            <widget class="QLabel" name="status_line">
              <property name="text">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:16pt; color:#cc4194;&quot;&gt;Скачивание  архива&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>

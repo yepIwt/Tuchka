@@ -43,17 +43,17 @@ class Ui_MainWindow(object):
         self.logo.setFont(font)
         self.logo.setObjectName("logo")
         self.verticalLayout_3.addWidget(self.logo)
-        self.texter = QtWidgets.QLineEdit(self.widget)
-        self.texter.setStyleSheet("QLineEdit{\n"
+        self.input = QtWidgets.QLineEdit(self.widget)
+        self.input.setStyleSheet("QLineEdit{\n"
 "    border: 2px solid  rgb(112, 35, 81);\n"
 "    color: white;\n"
 "    background-color: rgb(112, 35, 81);\n"
 "    border-radius: 10px;\n"
 "    padding-left: 10px;\n"
 "}")
-        self.texter.setInputMask("")
-        self.texter.setObjectName("texter")
-        self.verticalLayout_3.addWidget(self.texter)
+        self.input.setInputMask("")
+        self.input.setObjectName("input")
+        self.verticalLayout_3.addWidget(self.input)
         self.gridLayout.addWidget(self.widget, 1, 1, 1, 1)
         spacerItem2 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.gridLayout.addItem(spacerItem2, 0, 1, 1, 1)
@@ -69,4 +69,5 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.logo.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:48pt; color:#cc4194;\">Driveп</span></p></body></html>"))
-        self.texter.setPlaceholderText(_translate("MainWindow", "Введите новый пароль"))
+        self.input.setPlaceholderText(_translate("MainWindow", "Введите новый пароль"))
+from .src import prefix_rc
