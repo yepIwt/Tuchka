@@ -27,7 +27,7 @@ class CryptoMethod:
 		try:
 			data = cipher.decrypt_and_verify(ciphertext, tag)
 		except ValueError:
-			return ' ' # empty string like False
+			return 0 # empty string like False
 		else:
 			return data
 
