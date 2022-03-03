@@ -8,11 +8,11 @@ class Config:
 	
 	data = None
 	__config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
-	__config_here = os.path.isfile(__config_path)
+	_config_here = os.path.isfile(__config_path)
 
 	def __init__(self):
 		logger.debug("Initialization Config object")
-		logger.debug(f"Config here:{self.__config_here}")
+		logger.debug(f"Config here:{self._config_here}")
 
 	def open(self, password: str) -> bool:
 		logger.debug("Initialization CryptoMethod object")
