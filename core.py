@@ -1,70 +1,75 @@
 #!/usr/bin/python
 
 """
-    Driven (Tuchka) program core
-    yepIwt, 2022
+	Driven (Tuchka) program core
+	yepIwt, 2022
 """
 
 import vk_api
 import confs
 
 def get_vk_api(login: str = None, password: str = None, token: str = None):
-    
-    vk_session = vk_api.VkApi(
-        login = login,
-        password = password,
-        token = token
-    )
+	
+	vk_session = vk_api.VkApi(
+		login = login,
+		password = password,
+		token = token
+	)
 
-    api = vk_session.get_api()
+	api = vk_session.get_api()
 
-    try:
-        api.wall.get()
-    except Exception as err:
-        return False, err
-    else:
-        return True, api
+	try:
+		api.wall.get()
+	except Exception as err:
+		return False, err
+	else:
+		return True, api
 
 class DrivenCore:
 
-    _cfg = None
+	_cfg = None
+	_vk_api = None
 
-    def __init__(self, config: confs.Config):
-        pass
+	def __init__(self, config: confs.Config):
+		"""
+			Recomendation: use only working vk api token or add a handler before
+		"""
+		self._cfg = config
+		self._vk_api = get_vk_api(token = config.data['vk_api_token'])
 
-    def _get_all_chats(self):
-        pass
-    
-    def _search_chat_by_title(self):
-        pass
+	def _get_all_chats(self):
+		pass
+	
+	def _search_chat_by_title(self):
+		pass
 
-    def _get_chat_picture(self):
-        pass
-    
-    def _get_attachments_history(self):
-        pass
+	def _get_chat_picture(self):
+		pass
+	
+	def _get_attachments_history(self):
+		pass
 
-    def _upload_file(self):
-        pass
+	def _upload_file(self):
+		pass
 
-    def _change_release(self):
-        pass
+	def _change_release(self):
+		pass
 
 if __name__ == "__main__":
-    c = confs.Config()
-    if c._config_here:
-        unlocked = False
-        while unlocked != True:
-            password = input("Enter password: ")
-            unlocked = c.open(password)
-        print("Done!")
-    else:
-        status = False
-        while status != True:
-            api_token = input("Enter VK API token: ")
-            status, err = get_vk_api(token = api_token)
-            if not status:
-                print(err)
-        new_password = input("Enter new password: ")
-        c.new_cfg(api_token, new_password)
-        print("Done!")
+	c = confs.Config()
+	if c._config_here:
+		unlocked = False
+		while unlocked != True:
+			password = input("Enter password: ")
+			unlocked = c.open(password)
+		print("Done!")
+	else:
+		status = False
+		while status != True:
+			api_token = input("Enter VK API token: ")
+			status, err = get_vk_api(token = api_token)
+			if not status:
+				print(err)
+		new_password = input("Enter new password: ")
+		c.new_cfg(api_token, new_password)
+		print("Done!")
