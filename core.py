@@ -27,15 +27,15 @@ def get_vk_api(login: str = None, password: str = None, token: str = None):
 
 class DrivenCore:
 
-	_cfg = None
+	cfg = None
 	_vk_api = None
 
 	def __init__(self, config: confs.Config):
 		"""
 			Recomendation: use only working vk api token or add a handler before
 		"""
-		self._cfg = config
-		self._vk_api = get_vk_api(token = config.data['vk_api_token'])
+		self.cfg = config
+		self._vk_api = get_vk_api(token = self.cfg.data['vk_api_token'])
 
 	def _get_all_chats(self):
 		pass
