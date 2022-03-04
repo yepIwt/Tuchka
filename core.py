@@ -8,6 +8,8 @@
 import vk_api
 import confs
 
+from loguru import logger
+
 def get_vk_api(login: str = None, password: str = None, token: str = None):
 	
 	vk_session = vk_api.VkApi(
@@ -35,11 +37,30 @@ class DrivenCore:
 			Recomendation: use only working vk api token or add a handler before
 		"""
 		self.cfg = config
-		self._vk_api = get_vk_api(token = self.cfg.data['vk_api_token'])
+		status, self._vk_api = get_vk_api(token = self.cfg.data['vk_api_token'])
+		logger.success('VK API granted!')
 
-	def _get_all_chats(self):
-		pass
-	
+	def _get_all_chats(self) -> list:
+		chats = []
+		logger.debug("Started getting all chats")
+		answer = self._vk_api.messages.getConversations(count = 200, extended = 1)
+		offset = 0
+
+		while answer['items']:
+			for i in answer['items']:
+				if i['conversation']['peer']['type'] not in ['user', 'group']:
+					chats.append(
+						(
+							i['conversation']['peer']['id'], 
+							i['conversation']['chat_settings']['title']
+						)
+					)
+			offset += len(answer['items'])
+			answer = self._vk_api.messages.getConversations(count = 200, extended = 1, offset = offset)
+
+		logger.success("Got all chats from acc ->", len(chats))
+		return chats
+
 	def _search_chat_by_title(self):
 		pass
 
