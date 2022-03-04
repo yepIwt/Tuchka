@@ -29,15 +29,16 @@ class Config:
 
 	def save(self):
 		logger.debug("Trying to save config")
-		self.__cryptomethod.enc_cfg(self.data)
+		self.__cryptomethod.enc_cfg(str(self.data))
 		logger.success("Config saved")
 
-	def new_cfg(self, vk_api_token: str):
+	def new_cfg(self, vk_api_token: str, new_password: str):
 		logger.debug("Trying to create new config")
 		data = {
 			"vk_api_token": vk_api_token,
 			"archive_ids": [],
 		}
 		self.data = data
-		self.__cryptomethod(self.data)
+		self.__cryptomethod = CryptoMethod(new_password, self.__config_path)
+		self.save()
 		logger.success("New config saved")
