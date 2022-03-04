@@ -2,6 +2,8 @@ import os
 from .cmeth import CryptoMethod
 from loguru import logger
 
+import ast
+
 logger.add("cash/program_log.log")
 
 class Config:
@@ -23,7 +25,7 @@ class Config:
 			logger.debug("Wrong password for config")
 			return False
 		else:
-			self.data = dec_data
+			self.data = ast.literal_eval(dec_data.decode())
 			logger.success("Read data from config")
 			return True
 
