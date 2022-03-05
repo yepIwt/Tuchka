@@ -10,6 +10,8 @@ import confs
 
 from loguru import logger
 
+VK_MESSAGE_CONSTANT = 2000000000
+
 def get_vk_api(login: str = None, password: str = None, token: str = None):
 	
 	vk_session = vk_api.VkApi(
@@ -41,7 +43,9 @@ class DrivenCore:
 		logger.success('VK API granted!')
 
 	def _get_all_chats(self) -> list:
+		
 		chats = []
+		
 		logger.debug("Started getting all chats")
 		answer = self._vk_api.messages.getConversations(count = 200, extended = 1)
 		offset = 0
@@ -61,8 +65,40 @@ class DrivenCore:
 		logger.success("Got all chats from acc ->", len(chats))
 		return chats
 
-	def _search_chat_by_title(self):
-		pass
+	def _search_chat_by_title(self, text: str):
+
+		chats = []
+		
+		logger.debug(f"Started searching in all chats with key = {text}")
+		answer = self._vk_api.messages.search(
+			q = text,
+			count = 100,
+		)
+
+		offset = 0
+		while answer['items']:
+			for i in answer['items']:
+
+				if i['peer_id'] > VK_MESSAGE_CONSTANT: # This is a chat
+
+					answer2 = self._vk_api.messages.getChat(chat_id = i['peer_id'] - VK_MESSAGE_CONSTANT)
+					flag = False
+
+					for pid,title in chats:
+						if pid == i['peer_id']:
+							flag = True
+
+					if not flag:
+						chats.append(
+							(
+								i['peer_id'],
+								answer2['title']
+							)
+						)
+
+			offset += len(answer['items'])
+			answer = self._vk_api.messages.search(q = text, count = 100, offset = offset)
+		return chats
 
 	def _get_chat_picture(self):
 		pass
