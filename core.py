@@ -55,15 +55,30 @@ class DrivenCore:
 				if i['conversation']['peer']['type'] not in ['user', 'group']:
 					chats.append(
 						(
-							i['conversation']['peer']['id'], 
-							i['conversation']['chat_settings']['title']
+							i['conversation']['peer']['id'],
+							i['conversation']['chat_settings']['title'],
+							self._get_chat_picture_url_by_peer_id(i['conversation']['peer']['id'])
 						)
 					)
 			offset += len(answer['items'])
 			answer = self._vk_api.messages.getConversations(count = 200, extended = 1, offset = offset)
 
-		logger.success("Got all chats from acc ->", len(chats))
+		logger.success(f"Got all chats from acc -> {len(chats)}")
 		return chats
+	
+	def _get_chat_title_by_peer_id(self, peer_id: str):
+		answer = self._vk_api.messages.getChat(
+			chat_id = peer_id - VK_MESSAGE_CONSTANT,
+		)
+		chat_title = answer['title']
+		return chat_title
+	
+	def _get_chat_picture_url_by_peer_id(self, peer_id: str):
+		answer = self._vk_api.messages.getChat(
+			chat_id = peer_id - VK_MESSAGE_CONSTANT,
+		)
+		url_to_picture = answer.get("photo_200")
+		return url_to_picture
 
 	def _search_chat_by_title(self, text: str):
 
@@ -81,10 +96,9 @@ class DrivenCore:
 
 				if i['peer_id'] > VK_MESSAGE_CONSTANT: # This is a chat
 
-					answer2 = self._vk_api.messages.getChat(chat_id = i['peer_id'] - VK_MESSAGE_CONSTANT)
 					flag = False
 
-					for pid,title in chats:
+					for pid, _, _ in chats:
 						if pid == i['peer_id']:
 							flag = True
 
@@ -92,7 +106,8 @@ class DrivenCore:
 						chats.append(
 							(
 								i['peer_id'],
-								answer2['title']
+								self._get_chat_title_by_peer_id(i['peer_id']),
+								self._get_chat_picture_url_by_peer_id(i['peer_id'])
 							)
 						)
 
@@ -100,9 +115,6 @@ class DrivenCore:
 			answer = self._vk_api.messages.search(q = text, count = 100, offset = offset)
 		return chats
 
-	def _get_chat_picture(self):
-		pass
-	
 	def _get_attachments_history(self):
 		pass
 
