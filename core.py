@@ -52,7 +52,7 @@ class DrivenCore:
 
 		chats = []
 		
-		logger.debug("Started getting all chats")
+		logger.debug("Start 'get_all_chats' function")
 		answer = self._vk_api.messages.getConversations(count = 200, extended = 1)
 		offset = 0
 
@@ -69,21 +69,29 @@ class DrivenCore:
 			offset += len(answer['items'])
 			answer = self._vk_api.messages.getConversations(count = 200, extended = 1, offset = offset)
 
-		logger.success(f"Got all chats from acc -> {len(chats)}")
+		logger.success(f"End 'get_all_chats' function with len(result) = {len(chats)}")
 		return chats
 	
-	def _get_chat_title_by_peer_id(self, peer_id: str):
+	def _get_chat_title_by_peer_id(self, peer_id: str) -> str:
+		logger.debug(f"Start 'get_chat_title_by_peer_id' function with peer_id = {peer_id}")
+
 		answer = self._vk_api.messages.getChat(
 			chat_id = peer_id - VK_MESSAGE_CONSTANT,
 		)
 		chat_title = answer['title']
+
+		logger.success("End 'get_all_chats' function")
 		return chat_title
 	
-	def _get_chat_picture_url_by_peer_id(self, peer_id: str):
+	def _get_chat_picture_url_by_peer_id(self, peer_id: str) -> str:
+		logger.debug(f"Start 'get_chat_picture_url_by_peer_id' function with peer_id = {peer_id}")
+
 		answer = self._vk_api.messages.getChat(
 			chat_id = peer_id - VK_MESSAGE_CONSTANT,
 		)
 		url_to_picture = answer.get("photo_200")
+
+		logger.success("End 'get_chat_picture_url_by_peer_id' function")
 		return url_to_picture
 
 	def _search_chat_by_title(self, text: str) -> list:
@@ -94,7 +102,8 @@ class DrivenCore:
 
 		chats = []
 		
-		logger.debug(f"Started searching in all chats with key = {text}")
+		logger.debug(f"Start 'search_chat_by_title' function with q = {text}")
+
 		answer = self._vk_api.messages.search(
 			q = text,
 			count = 100,
@@ -123,17 +132,20 @@ class DrivenCore:
 
 			offset += len(answer['items'])
 			answer = self._vk_api.messages.search(q = text, count = 100, offset = offset)
+		
+		logger.success(f"End 'search_chat_by_title' function with len(result) = {len(chats)}")
 		return chats
 
 	def _get_history_attachments_by_peer_id(self, peer_id: str) -> list:
 
 		"""
 			Returns list with: from_id, unix_date, url_to_file
+			Warning: Duplicate files expected.
 		"""
 
 		files = []
 
-		logger.debug(f"Start get attachments from chat with peer_id = {peer_id}")
+		logger.debug(f"Start 'get_history_attachments_by_peer_id' with peer_id = {peer_id}")
 
 		answer = self._vk_api.messages.getHistoryAttachments(
 			peer_id = peer_id,
@@ -163,6 +175,7 @@ class DrivenCore:
 				start_from = answer['next_from']
 			)
 
+		logger.success(f"End 'get_history_attachments_by_peer_id' function with len(result) = {len(files)}")
 		return files
 
 	def _upload_file(self):
