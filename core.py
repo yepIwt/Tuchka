@@ -35,15 +35,21 @@ class DrivenCore:
 	_vk_api = None
 
 	def __init__(self, config: confs.Config):
+
 		"""
 			Recomendation: use only working vk api token or add a handler before
 		"""
+
 		self.cfg = config
 		status, self._vk_api = get_vk_api(token = self.cfg.data['vk_api_token'])
 		logger.success('VK API granted!')
 
 	def _get_all_chats(self) -> list:
-		
+
+		"""
+			Returns list with: peer_id, chat_title, url_to_chat_pic
+		"""
+
 		chats = []
 		
 		logger.debug("Started getting all chats")
@@ -80,7 +86,11 @@ class DrivenCore:
 		url_to_picture = answer.get("photo_200")
 		return url_to_picture
 
-	def _search_chat_by_title(self, text: str):
+	def _search_chat_by_title(self, text: str) -> list:
+
+		"""
+			Returns list with: peer_id, chat_title, url_to_chat_pic
+		"""
 
 		chats = []
 		
@@ -115,8 +125,45 @@ class DrivenCore:
 			answer = self._vk_api.messages.search(q = text, count = 100, offset = offset)
 		return chats
 
-	def _get_attachments_history(self):
-		pass
+	def _get_history_attachments_by_peer_id(self, peer_id: str) -> list:
+
+		"""
+			Returns list with: from_id, unix_date, url_to_file
+		"""
+
+		files = []
+
+		logger.debug(f"Start get attachments from chat with peer_id = {peer_id}")
+
+		answer = self._vk_api.messages.getHistoryAttachments(
+			peer_id = peer_id,
+			media_type = "doc",
+			count = 200
+		)
+
+		while answer['items']:
+			
+			
+			for it in answer['items']:
+				from_id = it['from_id']
+				date_unix = it['attachment']['doc']['date']
+				url_to_file = it['attachment']['doc']['url']
+				files.append(
+					(
+						from_id,
+						date_unix,
+						url_to_file
+					)
+				)
+
+			answer = self._vk_api.messages.getHistoryAttachments(
+				peer_id = peer_id,
+				media_type = "doc",
+				count = 200,
+				start_from = answer['next_from']
+			)
+
+		return files
 
 	def _upload_file(self):
 		pass
