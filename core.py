@@ -12,11 +12,12 @@ from loguru import logger
 
 VK_MESSAGE_CONSTANT = 2000000000
 
-def get_vk_api(login: str = None, password: str = None, token: str = None):
-	
+
+def get_vk_api(login: str = None, passw: str = None, token: str = None) -> tuple:
+
 	vk_session = vk_api.VkApi(
 		login = login,
-		password = password,
+		password = passw,
 		token = token
 	)
 
@@ -24,24 +25,24 @@ def get_vk_api(login: str = None, password: str = None, token: str = None):
 
 	try:
 		api.wall.get()
-	except Exception as err:
-		return False, err
+	except Exception as error:
+		return False, error
 	else:
 		return True, api
 
-class DrivenCore:
 
+class DrivenCore:
 	cfg = None
 	_vk_api = None
 
 	def __init__(self, config: confs.Config):
 
 		"""
-			Recomendation: use only working vk api token or add a handler before
+			Recommendation: use only working vk api token or add a handler before
 		"""
 
 		self.cfg = config
-		status, self._vk_api = get_vk_api(token = self.cfg.data['vk_api_token'])
+		_, self._vk_api = get_vk_api(token=self.cfg.data['vk_api_token'])
 		logger.success('VK API granted!')
 
 	def _get_all_chats(self) -> list:
@@ -51,9 +52,9 @@ class DrivenCore:
 		"""
 
 		chats = []
-		
+
 		logger.debug("Start 'get_all_chats' function")
-		answer = self._vk_api.messages.getConversations(count = 200, extended = 1)
+		answer = self._vk_api.messages.getConversations(count=200, extended=1)
 		offset = 0
 
 		while answer['items']:
@@ -67,27 +68,27 @@ class DrivenCore:
 						)
 					)
 			offset += len(answer['items'])
-			answer = self._vk_api.messages.getConversations(count = 200, extended = 1, offset = offset)
+			answer = self._vk_api.messages.getConversations(count=200, extended=1, offset=offset)
 
 		logger.success(f"End 'get_all_chats' function with len(result) = {len(chats)}")
 		return chats
-	
-	def _get_chat_title_by_peer_id(self, peer_id: str) -> str:
+
+	def _get_chat_title_by_peer_id(self, peer_id: int) -> str:
 		logger.debug(f"Start 'get_chat_title_by_peer_id' function with peer_id = {peer_id}")
 
 		answer = self._vk_api.messages.getChat(
-			chat_id = peer_id - VK_MESSAGE_CONSTANT,
+			chat_id=peer_id - VK_MESSAGE_CONSTANT,
 		)
 		chat_title = answer['title']
 
 		logger.success("End 'get_all_chats' function")
 		return chat_title
-	
-	def _get_chat_picture_url_by_peer_id(self, peer_id: str) -> str:
+
+	def _get_chat_picture_url_by_peer_id(self, peer_id: int) -> str:
 		logger.debug(f"Start 'get_chat_picture_url_by_peer_id' function with peer_id = {peer_id}")
 
 		answer = self._vk_api.messages.getChat(
-			chat_id = peer_id - VK_MESSAGE_CONSTANT,
+			chat_id=peer_id - VK_MESSAGE_CONSTANT,
 		)
 		url_to_picture = answer.get("photo_200")
 
@@ -101,19 +102,19 @@ class DrivenCore:
 		"""
 
 		chats = []
-		
+
 		logger.debug(f"Start 'search_chat_by_title' function with q = {text}")
 
 		answer = self._vk_api.messages.search(
-			q = text,
-			count = 100,
+			q=text,
+			count=100,
 		)
 
 		offset = 0
 		while answer['items']:
 			for i in answer['items']:
 
-				if i['peer_id'] > VK_MESSAGE_CONSTANT: # This is a chat
+				if i['peer_id'] > VK_MESSAGE_CONSTANT:  # This is a chat
 
 					flag = False
 
@@ -131,8 +132,8 @@ class DrivenCore:
 						)
 
 			offset += len(answer['items'])
-			answer = self._vk_api.messages.search(q = text, count = 100, offset = offset)
-		
+			answer = self._vk_api.messages.search(q=text, count=100, offset=offset)
+
 		logger.success(f"End 'search_chat_by_title' function with len(result) = {len(chats)}")
 		return chats
 
@@ -148,14 +149,13 @@ class DrivenCore:
 		logger.debug(f"Start 'get_history_attachments_by_peer_id' with peer_id = {peer_id}")
 
 		answer = self._vk_api.messages.getHistoryAttachments(
-			peer_id = peer_id,
-			media_type = "doc",
-			count = 200
+			peer_id=peer_id,
+			media_type="doc",
+			count=200
 		)
 
 		while answer['items']:
-			
-			
+
 			for it in answer['items']:
 				from_id = it['from_id']
 				date_unix = it['attachment']['doc']['date']
@@ -169,10 +169,10 @@ class DrivenCore:
 				)
 
 			answer = self._vk_api.messages.getHistoryAttachments(
-				peer_id = peer_id,
-				media_type = "doc",
-				count = 200,
-				start_from = answer['next_from']
+				peer_id=peer_id,
+				media_type="doc",
+				count=200,
+				start_from=answer['next_from']
 			)
 
 		logger.success(f"End 'get_history_attachments_by_peer_id' function with len(result) = {len(files)}")
@@ -184,19 +184,21 @@ class DrivenCore:
 	def _change_release(self):
 		pass
 
+
 if __name__ == "__main__":
 	c = confs.Config()
-	if c._config_here:
+	if c.config_here:
 		unlocked = False
-		while unlocked != True:
+		while not unlocked:
 			password = input("Enter password: ")
 			unlocked = c.open(password)
 		print("Done!")
 	else:
 		status = False
-		while status != True:
+		api_token = ""
+		while not status:
 			api_token = input("Enter VK API token: ")
-			status, err = get_vk_api(token = api_token)
+			status, err = get_vk_api(token=api_token)
 			if not status:
 				print(err)
 		new_password = input("Enter new password: ")
