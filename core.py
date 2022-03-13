@@ -33,8 +33,10 @@ def get_vk_api(login: str = None, passw: str = None, token: str = None) -> tuple
 
 
 class DrivenCore:
+
 	cfg = None
 	_vk_api = None
+	_current_chat_selected = None # peer_id
 
 	def __init__(self, config: confs.Config):
 
@@ -179,8 +181,9 @@ class DrivenCore:
 		logger.success(f"End 'get_history_attachments_by_peer_id' function with len(result) = {len(files)}")
 		return files
 
-	def _upload_file(self, file_path, file_title) -> dict:
+	def _upload_file(self, file_path) -> dict:
 		if os.access(file_path, os.R_OK):
+			file_title = "there_must_be_random_string"
 			f = open(file_path, 'rb')
 			up = vk_api.VkUpload(self._vk_api)
 			file_data = up.document(
@@ -190,12 +193,24 @@ class DrivenCore:
 			return file_data
 		return {}
 	
-	def _send_file_to_chat_id(self, file_data, chat_id):
-		pass
+	def _send_file_to_chat_id(self, file_data, commit_message, chat_id):
+		
+		owner_id = file_data['doc']['owner_id']
+		file_id = file_data['doc']['id']
+
+		self._vk_api.messages.send(
+			peer_id = chat_id,
+			message = commit_message,
+			attachment = f"doc{owner_id}_{file_id}",
+			random_id = vk_api.utils.get_random_id(),
+		)
 
 	def _change_release(self):
 		pass
 
+	def synchronization(self, file_id, commit_message, chat_id):
+		file_data = self._upload_file(file_id)
+		self._send_file_to_chat_id(file_data, commit_message, chat_id)
 
 if __name__ == "__main__":
 	c = confs.Config()
