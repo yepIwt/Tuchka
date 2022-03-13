@@ -143,7 +143,7 @@ class DrivenCore:
 	def _get_history_attachments_by_peer_id(self, peer_id: str) -> list:
 
 		"""
-			Returns list with: from_id, unix_date, url_to_file
+			Returns list with tuple: from_id, unix_date, url_to_file, commit_message
 			Warning: Duplicate files expected.
 		"""
 
@@ -160,14 +160,21 @@ class DrivenCore:
 		while answer['items']:
 
 			for it in answer['items']:
+
+				message_id = it['message_id']
+				answ = self._vk_api.messages.getById(message_ids = message_id)
+
 				from_id = it['from_id']
 				date_unix = it['attachment']['doc']['date']
 				url_to_file = it['attachment']['doc']['url']
+				commit_message = answ['items'][0]['text']
+
 				files.append(
 					(
 						from_id,
 						date_unix,
-						url_to_file
+						url_to_file,
+						commit_message
 					)
 				)
 
