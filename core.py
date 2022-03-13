@@ -166,7 +166,7 @@ class DrivenCore:
 
 				from_id = it['from_id']
 				date_unix = it['attachment']['doc']['date']
-				url_to_file = it['attachment']['doc']['url']
+				url_to_file = it['attachment']['doc']['url'],
 				commit_message = answ['items'][0]['text']
 
 				files.append(
@@ -212,8 +212,15 @@ class DrivenCore:
 			random_id = vk_api.utils.get_random_id(),
 		)
 
-	def _change_release(self):
-		pass
+	def _change_release(self, date_unix_file, chat_id):
+		chats = self._get_history_attachments_by_peer_id(chat_id)
+		release = None
+		for frpid, unixdate, p1, p2 in chats:
+			if unixdate == date_unix_file:
+				release = (frpid, unixdate, p1, p2)
+				break
+		return release
+
 
 	def synchronization(self, file_id, commit_message, chat_id):
 		file_data = self._upload_file(file_id)
