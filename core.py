@@ -5,6 +5,7 @@
 	yepIwt, 2022
 """
 
+import os
 import vk_api
 import confs
 
@@ -178,7 +179,18 @@ class DrivenCore:
 		logger.success(f"End 'get_history_attachments_by_peer_id' function with len(result) = {len(files)}")
 		return files
 
-	def _upload_file(self):
+	def _upload_file(self, file_path, file_title) -> dict:
+		if os.access(file_path, os.R_OK):
+			f = open(file_path, 'rb')
+			up = vk_api.VkUpload(self._vk_api)
+			file_data = up.document(
+				title = file_title,
+				doc = f
+			)
+			return file_data
+		return {}
+	
+	def _send_file_to_chat_id(self, file_data, chat_id):
 		pass
 
 	def _change_release(self):
