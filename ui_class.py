@@ -117,9 +117,26 @@ class MainWindow(QtWidgets.QMainWindow):
 
 		self.pages.setCurrentIndex(1)
 
+class Locker(QtWidgets.QMainWindow):
+
+	def __init__(self):
+		super(Locker, self).__init__()
+		uic.loadUi('ui/Locker.ui', self)
+		self.ExecuteButton.clicked.connect(self.enter)
+
+	def enter(self):
+		passw = self.ConfigPassword.text()
+		self.do_smth()
+
+	def do_smth(self):
+		pass
+
+	def bad_password(self):
+		self.log_msg.setText("Неправильный пароль")
+
 
 if __name__ == "__main__":
 	app = QtWidgets.QApplication(sys.argv)
-	ui = MainWindow()
+	ui = Locker()
 	ui.show()
 	app.exec_()
