@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>212</width>
-    <height>386</height>
+    <width>357</width>
+    <height>384</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,10 +20,10 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="ChatName">
        <property name="styleSheet">
         <string notr="true">font-family:'Open Sans'; 
-font-size:25px; 
+font-size:45px; 
 font-weight:696; 
 color:#ffffff;</string>
        </property>
@@ -37,14 +37,26 @@ color:#ffffff;</string>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QGroupBox" name="groupBox">
+      <widget class="QGroupBox" name="ReleasesWidget">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="title">
         <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QSlider" name="verticalSlider">
+      <widget class="QSlider" name="TimeLine">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
@@ -55,10 +67,10 @@ color:#ffffff;</string>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="UpButton">
        <property name="styleSheet">
         <string notr="true">font-family:'Open Sans'; 
-font-size:15px; 
+font-size:25px; 
 font-weight:696; 
 color:#ffffff;</string>
        </property>
@@ -68,10 +80,10 @@ color:#ffffff;</string>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_2">
+      <widget class="QPushButton" name="DownButton">
        <property name="styleSheet">
         <string notr="true">font-family:'Open Sans'; 
-font-size:15px; 
+font-size:25px; 
 font-weight:696; 
 color:#ffffff;</string>
        </property>
@@ -81,10 +93,10 @@ color:#ffffff;</string>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_3">
+      <widget class="QPushButton" name="SelectButton">
        <property name="styleSheet">
         <string notr="true">font-family:'Open Sans'; 
-font-size:15px; 
+font-size:25px; 
 font-weight:696; 
 color:#ffffff;</string>
        </property>
@@ -97,8 +109,6 @@ color:#ffffff;</string>
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../include_icons.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
