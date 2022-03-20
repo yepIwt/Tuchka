@@ -2,6 +2,34 @@ from PyQt5 import QtCore, QtWidgets, uic, QtGui
 import sys
 
 
+def create_ui_release_widget(name, commit_name):
+	wid = QtWidgets.QWidget()
+	vlay = QtWidgets.QVBoxLayout()
+
+	text1 = QtWidgets.QLabel(name)
+	text2 = QtWidgets.QLabel(commit_name)
+	text1.setStyleSheet("font-family:'Open Sans'; font-size:20px; font-weight:696; color:#ffffff;")
+	text2.setStyleSheet("font-family:'Open Sans'; font-size:35px; font-weight:696; color:#ffffff;")
+	
+	vlay.addWidget(text1)
+	vlay.addWidget(text2)
+	
+	sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+	
+	wid.setSizePolicy(sizePolicy)
+	wid.setLayout(vlay)
+	
+	wid.setStyleSheet('''
+		QWidget{
+		border: None; 
+		border-bottom: 2px solid white; 
+		color: rgba(255, 255, 255, 230); 
+		padding-bottom: 1px; }
+		QLabel {border: None};
+		''')
+	
+	return wid
+
 class Registration(QtWidgets.QMainWindow):
 
 
@@ -25,6 +53,13 @@ class ArchiveView(QtWidgets.QWidget):
 		self.UpButton.clicked.connect(self.go_up)
 		self.DownButton.clicked.connect(self.go_down)
 		self.SelectButton.clicked.connect(self.go_change_release)
+
+		vlay = QtWidgets.QVBoxLayout()
+		wid1 = create_ui_release_widget("Никита Сергиевский", "Привет, мир!")
+		wid2 = create_ui_release_widget("Никки Ебланевский", "Гудбай, Америка!")
+
+		vlay.addWidget(wid1); vlay.addWidget(wid2)
+		self.ReleasesWidget.setLayout(vlay)
 	
 	def go_up(self):
 		print("Go Up!")
