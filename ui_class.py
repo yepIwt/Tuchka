@@ -135,16 +135,21 @@ class ListArchivesView(QtWidgets.QWidget):
 
 class Settings(QtWidgets.QWidget):
 
-	def __init__(self, folder_path):
+	def __init__(self, chat_id, folder_path):
 		super(Settings, self).__init__()
 		uic.loadUi('ui/Settings.ui', self)
 		self.FolderPath.setText(folder_path)
 		self.buttons.accepted.connect(self.accept)
 		self.buttons.rejected.connect(self.reject)
+		self.chat_id = chat_id
 		self.new_foolder_path = folder_path
+	
+	def accept_virtual(self, chat_id, new_folder_name):
+		pass
 	
 	def accept(self):
 		self.new_foolder_path = self.FolderPath.text()
+		self.accept_virtual(self.chat_id, self.new_foolder_path)
 		self.close()
 	
 	def reject(self):
@@ -205,9 +210,19 @@ class MainWindow(QtWidgets.QMainWindow):
 				break
 		
 		archive = self.c.data['archives'][i]
-		hwnd = Settings(archive['folder'])
-		hwnd.show()
-		print(hwnd.new_foolder_path)
+		
+		self.hwnd = Settings(archive['id'], archive['folder'])
+		self.hwnd.accept_virtual = self.save_settings
+		self.hwnd.show()
+		
+	
+	def save_settings(self, chat_id, new_folder_path):
+		for i in range(len(self.c.data['archives'])):
+			if self.c.data['archives'][i]['id'] == chat_id:
+				n = i
+				break
+		self.c.data['archives'][i]['folder'] = new_folder_path
+		self.c.save()
 
 class Locker(QtWidgets.QMainWindow):
 
@@ -238,6 +253,6 @@ class Locker(QtWidgets.QMainWindow):
 
 if __name__ == "__main__":
 	app = QtWidgets.QApplication(sys.argv)
-	ui = Locker()
+	ui = Settings('sdfsdf')
 	ui.show()
 	app.exec_()

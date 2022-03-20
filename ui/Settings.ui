@@ -47,6 +47,16 @@ color:#ffffff;</string>
      </item>
      <item>
       <widget class="QLineEdit" name="FolderPath">
+       <property name="styleSheet">
+        <string notr="true">color: white;
+font-size: 35px;
+background-color: rgba(0,0,0,0);
+border: None;
+border-top: 2px solid white;
+border-bottom: 2px solid white;
+color: rgba(255, 255, 255, 230);
+padding-bottom: 1px;</string>
+       </property>
        <property name="text">
         <string>Путь</string>
        </property>
