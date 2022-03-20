@@ -40,6 +40,7 @@ class Config:
 		data = {
 			"vk_api_token": vk_api_token,
 			"archive_ids": [],
+			'folder': "DrivenCloud",
 		}
 		self.data = data
 		self.__cryptomethod = CryptoMethod(new_password, self.__config_path)

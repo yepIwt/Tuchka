@@ -72,19 +72,25 @@ class ArchiveView(QtWidgets.QWidget):
 
 class ListArchivesView(QtWidgets.QWidget):
 	
-	def __init__(self):
+	def __init__(self, allchats, archives = None):
 		super(ListArchivesView, self).__init__()
 		uic.loadUi('ui/ListArchivesView.ui', self)
 		self.chats.clear()
 		self.save.clicked.connect(self.get_sel_chats)
-		self.add_chat_to_ui("Name", 1)
-		self.add_chat_to_ui("Nam2e", 2)
-		self.add_chat_to_ui("Namsdfe", 3)
+		
+		if archives:
+			self.save.deleteLater()
+			self.chats.itemDoubleClicked.connect(self.go_to_archive)
+		
+		# Добавление чатов в инт
+		for (peer_id, chat_title, _) in allchats:
+			self.add_chat_to_ui(chat_title, peer_id, archives = archives)
 	
-	def add_chat_to_ui(self, name, chat_id):
+	def add_chat_to_ui(self, name, chat_id, archives = None):
 		it = QtWidgets.QListWidgetItem(name)
-		it.setFlags(it.flags() | QtCore.Qt.ItemIsUserCheckable)
-		it.setCheckState(QtCore.Qt.Unchecked)
+		if not archives:
+			it.setFlags(it.flags() | QtCore.Qt.ItemIsUserCheckable)
+			it.setCheckState(QtCore.Qt.Unchecked)
 		font = QtGui.QFont()
 		font.setPointSize(37)
 		it.setFont(font)
@@ -98,40 +104,71 @@ class ListArchivesView(QtWidgets.QWidget):
 		for index in range(self.chats.count()):
 			if self.chats.item(index).checkState() == QtCore.Qt.Checked:
 				checked_items.append(self.chats.item(index))
-
+		
+		self.archives = []
 		for c in checked_items:
-			print(c.text(), c.chat_id)
+			self.archives.append(c.chat_id)
+
+		self.close()
+	
+	def go_to_archive(self):
+		items = self.chats.selectedItems()[0]
+		print(items)
+		print(items.chat_id)
+		print(items.text())
 
 # QStackedWidget changes pages to (ListArchivesView, ArchiveView, ...)
 class MainWindow(QtWidgets.QMainWindow):
 
-	def __init__(self):
+	def __init__(self, config, pcore):
 		super(MainWindow, self).__init__()
 		uic.loadUi('ui/MainWindow.ui', self)
+
+		self.c = config
+		self.d = pcore
 		
-		list_ach = ListArchivesView()
+		allarhives = []
+
+		for a in self.c.data['archive_ids']:
+			title = self.d._get_chat_title_by_peer_id(a)
+			peer_id = a
+			allarhives.append(
+				(peer_id, title, None)
+			)
+		
+
+		list_ach = ListArchivesView(allchats = allarhives, archives = True)
 		self.pages.addWidget(list_ach)
 		
-		sel_ach = ArchiveView()
-		self.pages.addWidget(sel_ach)
+		#sel_ach = ArchiveView()
+		#self.pages.addWidget(sel_ach)
 
 		self.pages.setCurrentIndex(1)
 
 class Locker(QtWidgets.QMainWindow):
 
-	def __init__(self):
+	def __init__(self, config):
 		super(Locker, self).__init__()
 		uic.loadUi('ui/Locker.ui', self)
 		self.ExecuteButton.clicked.connect(self.enter)
+		self.passw = None
+		self.c = config
 
 	def enter(self):
-		passw = self.ConfigPassword.text()
-		self.do_smth()
+		self.passw = self.ConfigPassword.text()
 
-	def do_smth(self):
-		pass
+		if not self.c.config_here:
+			self.close()
+		else:
+
+			unlocked = self.c.open(self.passw)
+			if not unlocked:
+				self.bad_password()
+			else:
+				self.close()
 
 	def bad_password(self):
+		self.ConfigPassword.setText("")
 		self.log_msg.setText("Неправильный пароль")
 
 
