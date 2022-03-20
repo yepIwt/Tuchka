@@ -64,7 +64,7 @@ if __name__ == "__main__":
 		Chats.show()
 		ListArchivesViewApp.exec_()
 
-		c.data['archive_ids'] = Chats.archives
+		c.data['archives'] = Chats.archives
 		c.save()
 
 	"""
@@ -78,5 +78,3 @@ if __name__ == "__main__":
 	MainWindow = ui_class.MainWindow(config = c, pcore = ProgramCore)
 	MainWindow.show()
 	MainApp.exec_()
-		
-	

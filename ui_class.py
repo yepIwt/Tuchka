@@ -46,19 +46,22 @@ class Registration(QtWidgets.QMainWindow):
 
 class ArchiveView(QtWidgets.QWidget):
 	
-	def __init__(self):
+	def __init__(self, chat_title, chat_id, attachments):
 		super(ArchiveView, self).__init__()
 		uic.loadUi('ui/ArchiveView.ui', self)
-		self.ChatName.setText("Chat Name")
+		self.ChatName.setText(chat_title)
 		self.UpButton.clicked.connect(self.go_up)
 		self.DownButton.clicked.connect(self.go_down)
 		self.SelectButton.clicked.connect(self.go_change_release)
+		self.SettingsButton.clicked.connect(self.settings)
+		self.chat_id = chat_id
 
 		vlay = QtWidgets.QVBoxLayout()
-		wid1 = create_ui_release_widget("Никита Сергиевский", "Привет, мир!")
-		wid2 = create_ui_release_widget("Никки Ебланевский", "Гудбай, Америка!")
+		for a in attachments:
+			wid = create_ui_release_widget(a[0], a[1]  or "(No comment.)")
+			wid.url = a[2]
+			vlay.addWidget(wid)
 
-		vlay.addWidget(wid1); vlay.addWidget(wid2)
 		self.ReleasesWidget.setLayout(vlay)
 	
 	def go_up(self):
@@ -69,6 +72,13 @@ class ArchiveView(QtWidgets.QWidget):
 	
 	def go_change_release(self):
 		print("Change Release to ... !")
+	
+	def settings_virtual(self, chat_id):
+		pass
+	
+	def settings(self):
+		print("Go to settings!")
+		self.settings_virtual(self.chat_id)
 
 class ListArchivesView(QtWidgets.QWidget):
 	
@@ -107,15 +117,39 @@ class ListArchivesView(QtWidgets.QWidget):
 		
 		self.archives = []
 		for c in checked_items:
-			self.archives.append(c.chat_id)
+			self.archives.append(
+				{
+					'id': c.chat_id,
+					'folder': str(c.chat_id)
+				}
+			)
 
 		self.close()
 	
+	def go_to_archive_virtual(self, item):
+		pass
+	
 	def go_to_archive(self):
-		items = self.chats.selectedItems()[0]
-		print(items)
-		print(items.chat_id)
-		print(items.text())
+		item = self.chats.selectedItems()[0]
+		self.go_to_archive_virtual(item)
+
+class Settings(QtWidgets.QWidget):
+
+	def __init__(self, folder_path):
+		super(Settings, self).__init__()
+		uic.loadUi('ui/Settings.ui', self)
+		self.FolderPath.setText(folder_path)
+		self.buttons.accepted.connect(self.accept)
+		self.buttons.rejected.connect(self.reject)
+		self.new_foolder_path = folder_path
+	
+	def accept(self):
+		self.new_foolder_path = self.FolderPath.text()
+		self.close()
+	
+	def reject(self):
+		self.close()
+
 
 # QStackedWidget changes pages to (ListArchivesView, ArchiveView, ...)
 class MainWindow(QtWidgets.QMainWindow):
@@ -129,21 +163,51 @@ class MainWindow(QtWidgets.QMainWindow):
 		
 		allarhives = []
 
-		for a in self.c.data['archive_ids']:
-			title = self.d._get_chat_title_by_peer_id(a)
-			peer_id = a
+		for a in self.c.data['archives']:
+			title = self.d._get_chat_title_by_peer_id(a['id'])
+			peer_id = a['id']
 			allarhives.append(
 				(peer_id, title, None)
 			)
 		
 
 		list_ach = ListArchivesView(allchats = allarhives, archives = True)
+		list_ach.go_to_archive_virtual = self.open_archive
 		self.pages.addWidget(list_ach)
+
+		self.pages.setCurrentIndex(0)
+
+	def open_archive(self, item):
+		print(item.text())
+		archive_releases = self.d._get_history_attachments_by_peer_id(item.chat_id)
 		
-		#sel_ach = ArchiveView()
-		#self.pages.addWidget(sel_ach)
+		names_and_commits = []
+		for fid, _, url_to_file, commit_msg in archive_releases:
+			fl = self.d._get_f_l_by_user_id(fid)
+			names_and_commits.append(
+				[
+					fl, commit_msg, url_to_file
+				]
+			)
+
+		sel_ach = ArchiveView(item.text(), item.chat_id, names_and_commits)
+		sel_ach.settings_virtual = self.open_settings_for_chat_id
+		self.pages.addWidget(sel_ach)
 
 		self.pages.setCurrentIndex(1)
+	
+	def open_settings_for_chat_id(self, chat_id):
+
+		n = 0
+		for i in range(len(self.c.data['archives'])):
+			if self.c.data['archives'][i]['id'] == chat_id:
+				n = i
+				break
+		
+		archive = self.c.data['archives'][i]
+		hwnd = Settings(archive['folder'])
+		hwnd.show()
+		print(hwnd.new_foolder_path)
 
 class Locker(QtWidgets.QMainWindow):
 

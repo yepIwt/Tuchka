@@ -139,6 +139,16 @@ class DrivenCore:
 
 		logger.success(f"End 'search_chat_by_title' function with len(result) = {len(chats)}")
 		return chats
+	
+	def _get_f_l_by_user_id(self, uid) -> str:
+
+		"""
+			Return string with: First_Name + Last_Name
+			Warning: Group error expected.
+		"""
+
+		answ = self._vk_api.users.get(user_ids = uid)[0]
+		return answ['first_name'] + " " + answ['last_name']
 
 	def _get_history_attachments_by_peer_id(self, peer_id: str) -> list:
 

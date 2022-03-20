@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>362</width>
+    <width>431</width>
     <height>384</height>
    </rect>
   </property>
@@ -29,6 +29,20 @@ color:#ffffff;</string>
        </property>
        <property name="text">
         <string>Название чата</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="SettingsButton">
+       <property name="styleSheet">
+        <string notr="true">font-family:'Open Sans'; 
+font-size:45px; 
+font-weight:696; 
+color:#ffffff;
+border: None;</string>
+       </property>
+       <property name="text">
+        <string>⚙</string>
        </property>
       </widget>
      </item>
