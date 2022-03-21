@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>431</width>
+    <width>778</width>
     <height>384</height>
    </rect>
   </property>
@@ -49,77 +49,13 @@ border: None;</string>
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <widget class="QGroupBox" name="ReleasesWidget">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="title">
-        <string/>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-       <property name="flat">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QSlider" name="TimeLine">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <layout class="QHBoxLayout" name="horizontalLayout_2"/>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QPushButton" name="UpButton">
-       <property name="styleSheet">
-        <string notr="true">font-family:'Open Sans'; 
-font-size:25px; 
-font-weight:696; 
-color:#ffffff;</string>
-       </property>
-       <property name="text">
-        <string>Вверх</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="DownButton">
-       <property name="styleSheet">
-        <string notr="true">font-family:'Open Sans'; 
-font-size:25px; 
-font-weight:696; 
-color:#ffffff;</string>
-       </property>
-       <property name="text">
-        <string>Вниз</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="SelectButton">
-       <property name="styleSheet">
-        <string notr="true">font-family:'Open Sans'; 
-font-size:25px; 
-font-weight:696; 
-color:#ffffff;</string>
-       </property>
-       <property name="text">
-        <string>Выбрать</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QListWidget" name="ReleasesWidget"/>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_3"/>
    </item>
   </layout>
  </widget>

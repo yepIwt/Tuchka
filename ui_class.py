@@ -10,9 +10,11 @@ def create_ui_release_widget(name, commit_name):
 	text2 = QtWidgets.QLabel(commit_name)
 	text1.setStyleSheet("font-family:'Open Sans'; font-size:20px; font-weight:696; color:#ffffff;")
 	text2.setStyleSheet("font-family:'Open Sans'; font-size:35px; font-weight:696; color:#ffffff;")
+	btn = QtWidgets.QPushButton("Press me!")
 	
 	vlay.addWidget(text1)
 	vlay.addWidget(text2)
+	vlay.addWidget(btn)
 	
 	sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
 	
@@ -26,9 +28,66 @@ def create_ui_release_widget(name, commit_name):
 		color: rgba(255, 255, 255, 230); 
 		padding-bottom: 1px; }
 		QLabel {border: None};
+		QPushButton {border: 2px solid black};
 		''')
 	
 	return wid
+
+def create_ui_release_widget2(name, commit_name, current = False):
+	itemN = QtWidgets.QListWidgetItem() 
+
+	widget = QtWidgets.QWidget()
+	widget.setStyleSheet('''
+		QWidget{
+		border: None; 
+		border-bottom: 2px solid white; 
+		color: rgba(255, 255, 255, 230); 
+		padding-bottom: 1px; 
+		}
+		QLabel {
+			border: None
+		};
+		
+		''')
+	
+	sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+	
+	widget.setSizePolicy(sizePolicy)
+
+	widgetText =  QtWidgets.QLabel(name)
+	widgetText.setStyleSheet("font-family:'Open Sans'; font-size:20px; font-weight:696; color:#ffffff;")
+
+	widgetText3 = QtWidgets.QLabel(commit_name)
+	widgetText3.setStyleSheet("font-family:'Open Sans'; font-size:35px; font-weight:696; color:#ffffff;")
+
+	widgetButton =  QtWidgets.QPushButton("Сменить")
+	widgetButton.setStyleSheet("QPushButton {border-bottom: 2px solid white; border-right: 2px solid white; font-size:15px; color:#ffffff;}")
+
+	if current:
+		widgetButton.setText("Текущий")
+		widgetButton.setDisabled(True)
+		widgetButton.setStyleSheet("QPushButton {border-bottom: 2px solid white; border-right: 2px solid white; font-size:15px; color: red;}")
+	
+
+	widgetButton.clicked.connect(lambda: print("dolabeb"))
+	widgetLayout = QtWidgets.QHBoxLayout()
+	
+	commit_lay = QtWidgets.QVBoxLayout()
+	
+	commit_lay.addWidget(widgetText)
+	commit_lay.addWidget(widgetText3)
+
+	widgetLayout.addLayout(commit_lay)
+	widgetLayout.addWidget(widgetButton)
+	widgetLayout.addStretch()
+
+	#widgetLayout.setSizeConstraint(QtWidgets.QLayout.SetFixedSize)
+	widget.setLayout(widgetLayout)  
+	itemN.setSizeHint(widget.sizeHint())    
+
+	#Add widget to QListWidget funList
+	return itemN, widget
+
 
 class Registration(QtWidgets.QMainWindow):
 
@@ -50,28 +109,19 @@ class ArchiveView(QtWidgets.QWidget):
 		super(ArchiveView, self).__init__()
 		uic.loadUi('ui/ArchiveView.ui', self)
 		self.ChatName.setText(chat_title)
-		self.UpButton.clicked.connect(self.go_up)
-		self.DownButton.clicked.connect(self.go_down)
-		self.SelectButton.clicked.connect(self.go_change_release)
+		
 		self.SettingsButton.clicked.connect(self.settings)
 		self.chat_id = chat_id
 
 		vlay = QtWidgets.QVBoxLayout()
 		for a in attachments:
-			wid = create_ui_release_widget(a[0], a[1]  or "(No comment.)")
-			wid.url = a[2]
-			vlay.addWidget(wid)
+			itemN, widget = create_ui_release_widget2(a[0], a[1]  or "(No comment.)")
+			self.ReleasesWidget.addItem(itemN)
+			self.ReleasesWidget.setItemWidget(itemN, widget)
+			#wid.url = a[2]
+			#vlay.addWidget(wid)
 
-		self.ReleasesWidget.setLayout(vlay)
-	
-	def go_up(self):
-		print("Go Up!")
-
-	def go_down(self):
-		print("Go Down!")
-	
-	def go_change_release(self):
-		print("Change Release to ... !")
+		#self.ReleasesWidget.setLayout(vlay)
 	
 	def settings_virtual(self, chat_id):
 		pass

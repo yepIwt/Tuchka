@@ -43,6 +43,7 @@ color:#ffffff;</string>
 	color:White;
 }
 
+
 QCheckBox::indicator { width:150px; height: 150px;}</string>
        </property>
        <item>
