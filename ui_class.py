@@ -33,7 +33,7 @@ def create_ui_release_widget(name, commit_name):
 	
 	return wid
 
-def create_ui_release_widget2(name, commit_name, current = False):
+def create_ui_release_widget2(name, commit_name, unixtime, url_to_release, func, chat_id, current = False):
 	itemN = QtWidgets.QListWidgetItem() 
 
 	widget = QtWidgets.QWidget()
@@ -69,7 +69,12 @@ def create_ui_release_widget2(name, commit_name, current = False):
 		widgetButton.setStyleSheet("QPushButton {border-bottom: 2px solid white; border-right: 2px solid white; font-size:15px; color: red;}")
 	
 
-	widgetButton.clicked.connect(lambda: print("dolabeb"))
+	widgetButton.clicked.connect(func)
+	# Meta Data
+	widget.unixtime = unixtime
+	widget.url = url_to_release
+	widget.chat_id = chat_id
+
 	widgetLayout = QtWidgets.QHBoxLayout()
 	
 	commit_lay = QtWidgets.QVBoxLayout()
@@ -105,29 +110,39 @@ class Registration(QtWidgets.QMainWindow):
 
 class ArchiveView(QtWidgets.QWidget):
 	
-	def __init__(self, chat_title, chat_id, attachments):
+	def __init__(self, chat_title, chat_id, current, attachments):
 		super(ArchiveView, self).__init__()
 		uic.loadUi('ui/ArchiveView.ui', self)
 		self.ChatName.setText(chat_title)
 		
 		self.SettingsButton.clicked.connect(self.settings)
 		self.chat_id = chat_id
+		self.atchs = attachments
+		self.current = current
 
 		vlay = QtWidgets.QVBoxLayout()
 		for a in attachments:
-			itemN, widget = create_ui_release_widget2(a[0], a[1]  or "(No comment.)")
+			flag = False
+			if a[3] == self.current:
+				flag = True
+
+			itemN, widget = create_ui_release_widget2(a[0], a[1]  or "(No comment.)", a[3], a[2], func = self.go_change_release, chat_id = a[4], current = flag)
 			self.ReleasesWidget.addItem(itemN)
 			self.ReleasesWidget.setItemWidget(itemN, widget)
-			#wid.url = a[2]
-			#vlay.addWidget(wid)
 
-		#self.ReleasesWidget.setLayout(vlay)
+	@QtCore.pyqtSlot()
+	def go_change_release(self):
+		button = self.sender()
+		n = self.ReleasesWidget.indexAt(button.pos()).row()
+		self.go_change_release_virtual(self.atchs[n])
+	
+	def go_change_release_virtual(self, attachment):
+		pass
 	
 	def settings_virtual(self, chat_id):
 		pass
 	
 	def settings(self):
-		print("Go to settings!")
 		self.settings_virtual(self.chat_id)
 
 class ListArchivesView(QtWidgets.QWidget):
@@ -143,10 +158,10 @@ class ListArchivesView(QtWidgets.QWidget):
 			self.chats.itemDoubleClicked.connect(self.go_to_archive)
 		
 		# Добавление чатов в инт
-		for (peer_id, chat_title, _) in allchats:
-			self.add_chat_to_ui(chat_title, peer_id, archives = archives)
+		for (peer_id, chat_title, _, current_unix) in allchats:
+			self.add_chat_to_ui(chat_title, peer_id, current_unix, archives = archives)
 	
-	def add_chat_to_ui(self, name, chat_id, archives = None):
+	def add_chat_to_ui(self, name, chat_id, current_unix, archives = None):
 		it = QtWidgets.QListWidgetItem(name)
 		if not archives:
 			it.setFlags(it.flags() | QtCore.Qt.ItemIsUserCheckable)
@@ -155,6 +170,7 @@ class ListArchivesView(QtWidgets.QWidget):
 		font.setPointSize(37)
 		it.setFont(font)
 		it.chat_id = chat_id
+		it.current = current_unix
 		
 		self.chats.setMinimumWidth(self.chats.sizeHintForColumn(0))
 		self.chats.addItem(it)
@@ -170,7 +186,8 @@ class ListArchivesView(QtWidgets.QWidget):
 			self.archives.append(
 				{
 					'id': c.chat_id,
-					'folder': str(c.chat_id)
+					'folder': str(c.chat_id),
+					'current': None,
 				}
 			)
 
@@ -222,7 +239,7 @@ class MainWindow(QtWidgets.QMainWindow):
 			title = self.d._get_chat_title_by_peer_id(a['id'])
 			peer_id = a['id']
 			allarhives.append(
-				(peer_id, title, None)
+				(peer_id, title, None, a['current'])
 			)
 		
 
@@ -233,19 +250,20 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.pages.setCurrentIndex(0)
 
 	def open_archive(self, item):
-		print(item.text())
+
 		archive_releases = self.d._get_history_attachments_by_peer_id(item.chat_id)
 		
 		names_and_commits = []
-		for fid, _, url_to_file, commit_msg in archive_releases:
+		for fid, unix_time, url_to_file, commit_msg in archive_releases:
 			fl = self.d._get_f_l_by_user_id(fid)
 			names_and_commits.append(
 				[
-					fl, commit_msg, url_to_file
+					fl, commit_msg, url_to_file, unix_time, item.chat_id
 				]
 			)
 
-		sel_ach = ArchiveView(item.text(), item.chat_id, names_and_commits)
+		sel_ach = ArchiveView(item.text(), item.chat_id, item.current, names_and_commits)
+		sel_ach.go_change_release_virtual = self.change_release
 		sel_ach.settings_virtual = self.open_settings_for_chat_id
 		self.pages.addWidget(sel_ach)
 
@@ -264,7 +282,10 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.hwnd = Settings(archive['id'], archive['folder'])
 		self.hwnd.accept_virtual = self.save_settings
 		self.hwnd.show()
-		
+	
+	def change_release(self, attachment):
+		print("Пошла поехала смена релиза", attachment)
+
 	
 	def save_settings(self, chat_id, new_folder_path):
 		for i in range(len(self.c.data['archives'])):
