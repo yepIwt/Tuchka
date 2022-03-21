@@ -6,6 +6,7 @@
 """
 
 import os, requests
+import zipfile
 import vk_api
 import confs
 
@@ -30,6 +31,17 @@ def get_vk_api(login: str = None, passw: str = None, token: str = None) -> tuple
 		return False, error
 	else:
 		return True, api
+
+def make_zip_dir(path):
+	zipf = zipfile.ZipFile('decrypted.zip', 'w', zipfile.ZIP_DEFLATED)
+	for root, dirs, files in os.walk(path):
+		for file in files:
+			zipf.write(os.path.join(root, file), os.path.relpath(os.path.join(root, file), os.path.join(path, '..')))
+	return os.path.join(path, 'decrypted.zip')
+
+def make_unzip_file(path_to_archive, folder_path):
+	with zipfile.ZipFile(path_to_archive, 'r') as file:
+		file.extractall(folder_path)
 
 
 class DrivenCore:
