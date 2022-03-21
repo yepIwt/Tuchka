@@ -1,4 +1,5 @@
 import os
+from sys import path_hooks
 from .cmeth import CryptoMethod
 from loguru import logger
 
@@ -29,6 +30,14 @@ class Config:
 			self.data = ast.literal_eval(dec_data.decode())
 			logger.success("Read data from config")
 			return True
+	
+	def encrypt(self, path_to_file):
+		self.__cryptomethod.encrypt_file(path_to_file, "encrypted")
+		return os.path.join(path_to_file, "encrypted")
+	
+	def decrypt(self, path_to_file):
+		self.__cryptomethod.decrypt_file(path_to_file, "decrypted.zip")
+		return os.path.join(path_to_file, "decrypted.zip")
 
 	def save(self):
 		logger.debug("Trying to save config")

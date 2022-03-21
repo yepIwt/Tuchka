@@ -237,12 +237,13 @@ class MainWindow(QtWidgets.QMainWindow):
 		super(MainWindow, self).__init__()
 		uic.loadUi('ui/MainWindow.ui', self)
 
-		self.c = config
+		#self.c = config
 		self.d = pcore
+		self.d.cfg = config
 		
 		allarhives = []
 
-		for a in self.c.data['archives']:
+		for a in self.d.cfg.data['archives']:
 			title = self.d._get_chat_title_by_peer_id(a['id'])
 			peer_id = a['id']
 			allarhives.append(
@@ -280,12 +281,12 @@ class MainWindow(QtWidgets.QMainWindow):
 	def open_settings_for_chat_id(self, chat_id):
 
 		n = 0
-		for i in range(len(self.c.data['archives'])):
-			if self.c.data['archives'][i]['id'] == chat_id:
+		for i in range(len(self.d.cfg.data['archives'])):
+			if self.d.cfg.data['archives'][i]['id'] == chat_id:
 				n = i
 				break
 		
-		archive = self.c.data['archives'][i]
+		archive = self.d.cfg.data['archives'][i]
 		
 		self.hwnd = Settings(archive['id'], archive['folder'])
 		self.hwnd.accept_virtual = self.save_settings
@@ -293,31 +294,27 @@ class MainWindow(QtWidgets.QMainWindow):
 	
 	def change_release(self, attachment):
 		print("Пошла поехала смена релиза", attachment)
-		for i in range(len(self.c.data['archives'])):
-			if self.c.data['archives'][i]['id'] == attachment[4]:
+		for i in range(len(self.d.cfg.data['archives'])):
+			if self.d.cfg.data['archives'][i]['id'] == attachment[4]:
 				n = i
 				break
 		
 		# Меняем current на выбранный unixtime
-		#self.c.data['archives'][i]['current'] = attachment[3]
-		self.d.change_release(url = attachment[2][0], folder = self.c.data['archives'][i]['folder'])
+		#self.d.cfg.data['archives'][i]['current'] = attachment[3]
+		self.d.change_release(url = attachment[2][0], folder = self.d.cfg.data['archives'][i]['folder'])
 	
 	def new_release(self, chat_id, commit_name):
-		for i in range(len(self.c.data['archives'])):
-			if self.c.data['archives'][i]['id'] == chat_id:
-				n = i
-				break
-		self.d.synchronization(chat_id, commit_name, self.c.data['archives'][i]['folder'])
+		self.d.synchronization(chat_id, commit_name)
 
 
 	
 	def save_settings(self, chat_id, new_folder_path):
-		for i in range(len(self.c.data['archives'])):
-			if self.c.data['archives'][i]['id'] == chat_id:
+		for i in range(len(self.d.cfg.data['archives'])):
+			if self.d.cfg.data['archives'][i]['id'] == chat_id:
 				n = i
 				break
-		self.c.data['archives'][i]['folder'] = new_folder_path
-		self.c.save()
+		self.d.cfg.data['archives'][i]['folder'] = new_folder_path
+		self.d.cfg.save()
 
 class Locker(QtWidgets.QMainWindow):
 

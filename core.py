@@ -37,7 +37,7 @@ def make_zip_dir(path):
 	for root, dirs, files in os.walk(path):
 		for file in files:
 			zipf.write(os.path.join(root, file), os.path.relpath(os.path.join(root, file), os.path.join(path, '..')))
-	return os.path.join(path, 'decrypted.zip')
+	return 'decrypted.zip'
 
 def make_unzip_file(path_to_archive, folder_path):
 	with zipfile.ZipFile(path_to_archive, 'r') as file:
@@ -238,10 +238,18 @@ class DrivenCore:
 		r = requests.get(url_to_file)
 		pass
 
-	def synchronization(self, chat_id, commit_message, folder):
-		folder = "old_core.py"
-		file_data = self._upload_file(folder)
-		self._send_file_to_chat_id(file_data, commit_message, chat_id)
+	def synchronization(self, chat_id, commit_message):
+		for i in range(len(self.cfg.data['archives'])):
+			if self.cfg.data['archives'][i]['id'] == chat_id:
+				n = i
+				break
+		folder = self.cfg.data['archives'][i]['folder']
+
+		if os.access(folder, os.R_OK):
+			path_to_archive = make_zip_dir(folder)
+			self.cfg.encrypt(path_to_archive)
+			file_data = self._upload_file("encrypted")
+			self._send_file_to_chat_id(file_data, commit_message, chat_id)
 
 if __name__ == "__main__":
 	c = confs.Config()
