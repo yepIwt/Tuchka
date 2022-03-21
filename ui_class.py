@@ -114,7 +114,7 @@ class ArchiveView(QtWidgets.QWidget):
 		super(ArchiveView, self).__init__()
 		uic.loadUi('ui/ArchiveView.ui', self)
 		self.ChatName.setText(chat_title)
-		
+		self.create_release.clicked.connect(self.go_create_release)
 		self.SettingsButton.clicked.connect(self.settings)
 		self.chat_id = chat_id
 		self.atchs = attachments
@@ -141,6 +141,13 @@ class ArchiveView(QtWidgets.QWidget):
 	
 	def settings_virtual(self, chat_id):
 		pass
+	
+	def go_create_release(self):
+		self.go_create_release_virtual(self.chat_id, self.release_name.text() or "No comment.")
+
+	def go_create_release_virtual(self, chat_id, folder):
+		pass
+	
 	
 	def settings(self):
 		self.settings_virtual(self.chat_id)
@@ -265,6 +272,7 @@ class MainWindow(QtWidgets.QMainWindow):
 		sel_ach = ArchiveView(item.text(), item.chat_id, item.current, names_and_commits)
 		sel_ach.go_change_release_virtual = self.change_release
 		sel_ach.settings_virtual = self.open_settings_for_chat_id
+		sel_ach.go_create_release_virtual = self.new_release
 		self.pages.addWidget(sel_ach)
 
 		self.pages.setCurrentIndex(1)
@@ -285,6 +293,22 @@ class MainWindow(QtWidgets.QMainWindow):
 	
 	def change_release(self, attachment):
 		print("Пошла поехала смена релиза", attachment)
+		for i in range(len(self.c.data['archives'])):
+			if self.c.data['archives'][i]['id'] == attachment[4]:
+				n = i
+				break
+		
+		# Меняем current на выбранный unixtime
+		#self.c.data['archives'][i]['current'] = attachment[3]
+		self.d.change_release(url = attachment[2][0], folder = self.c.data['archives'][i]['folder'])
+	
+	def new_release(self, chat_id, commit_name):
+		for i in range(len(self.c.data['archives'])):
+			if self.c.data['archives'][i]['id'] == chat_id:
+				n = i
+				break
+		self.d.synchronization(chat_id, commit_name, self.c.data['archives'][i]['folder'])
+
 
 	
 	def save_settings(self, chat_id, new_folder_path):

@@ -55,7 +55,40 @@ border: None;</string>
     <widget class="QListWidget" name="ReleasesWidget"/>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3"/>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QLineEdit" name="release_name">
+       <property name="styleSheet">
+        <string notr="true">color: white;
+font-size: 30px;
+background-color: rgba(0,0,0,0);
+border: None;
+border-bottom: 2px solid white;
+color: rgba(255, 255, 255, 230);
+padding-bottom: 1px;</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="placeholderText">
+        <string>Введите название версии</string>
+       </property>
+      </widget>
+     </item>
+     <item alignment="Qt::AlignRight">
+      <widget class="QPushButton" name="create_release">
+       <property name="styleSheet">
+        <string notr="true">font-family:'Open Sans'; 
+font-size:30px; 
+font-weight:696; 
+color:#ffffff;</string>
+       </property>
+       <property name="text">
+        <string>Создать новый релиз</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

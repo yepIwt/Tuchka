@@ -5,7 +5,7 @@
 	yepIwt, 2022
 """
 
-import os
+import os, requests
 import vk_api
 import confs
 
@@ -221,19 +221,14 @@ class DrivenCore:
 			attachment = f"doc{owner_id}_{file_id}",
 			random_id = vk_api.utils.get_random_id(),
 		)
+	
+	def change_release(self, url_to_file, folder):
+		r = requests.get(url_to_file)
+		pass
 
-	def _change_release(self, date_unix_file, chat_id):
-		chats = self._get_history_attachments_by_peer_id(chat_id)
-		release = None
-		for frpid, unixdate, p1, p2 in chats:
-			if unixdate == date_unix_file:
-				release = (frpid, unixdate, p1, p2)
-				break
-		return release
-
-
-	def synchronization(self, file_id, commit_message, chat_id):
-		file_data = self._upload_file(file_id)
+	def synchronization(self, chat_id, commit_message, folder):
+		folder = "old_core.py"
+		file_data = self._upload_file(folder)
 		self._send_file_to_chat_id(file_data, commit_message, chat_id)
 
 if __name__ == "__main__":
