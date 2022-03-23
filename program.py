@@ -1,4 +1,3 @@
-from telegram import Credentials
 import ui_class
 import core
 import confs
@@ -60,7 +59,7 @@ if __name__ == "__main__":
 
 		# Выбор чатов для Архива
 		ListArchivesViewApp = QtWidgets.QApplication(sys.argv)
-		Chats = ui_class.ListArchivesView(allchats = AllChats)
+		Chats = ui_class.ListArchivesView(chats = AllChats)
 		Chats.show()
 		ListArchivesViewApp.exec_()
 
