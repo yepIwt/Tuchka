@@ -26,6 +26,7 @@ class ArchiveView(QtWidgets.QWidget):
 		self.ChatName.setText(chat_title)
 		self.create_release.clicked.connect(self.go_create_release)
 		self.SettingsButton.clicked.connect(self.settings)
+		self.UpdateButton.clicked.connect(self.update_releases)
 		self.chat_id = chat_id
 		self.atchs = attachments
 		self.current = current
@@ -76,6 +77,14 @@ class ArchiveView(QtWidgets.QWidget):
 		widget.setLayout(widgetLayout); itemN.setSizeHint(widget.sizeHint())
 
 		return itemN, widget
+	
+	def update_releases(self):
+		self.atchs = self.update_releases_virtual(self.chat_id)
+		self.ReleasesWidget.clear()
+		self.add_releases_to_ui()
+
+	def update_releases_virtual(self, chat_id):
+		pass
 	
 	def add_releases_to_ui(self):
 		for i,rel in enumerate(self.atchs):
@@ -256,9 +265,15 @@ class MainWindow(QtWidgets.QMainWindow):
 		sel_ach.go_change_release_virtual = self.change_release
 		sel_ach.settings_virtual = self.open_settings_for_chat_id
 		sel_ach.go_create_release_virtual = self.new_release
+		sel_ach.update_releases_virtual = self.update_releases
 		self.pages.addWidget(sel_ach)
 
 		self.pages.setCurrentIndex(1)
+	
+	def update_releases(self, chat_id):
+		rels = self.d._get_history_attachments_by_peer_id(chat_id)
+		nms = self.catch_names_and_commits_from_archive_attachments(chat_id, rels)
+		return nms
 	
 	def catch_names_and_commits_from_archive_attachments(self, chat_id, archive_attachemnts):
 		names_and_commits = []
