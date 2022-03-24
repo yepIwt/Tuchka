@@ -60,7 +60,7 @@ class DrivenCore:
 		_, self._vk_api = get_vk_api(token=self.cfg.data['vk_api_token'])
 		logger.success('VK API granted!')
 
-	def _get_all_chats(self) -> list:
+	def _get_all_chats(self, with_pictures = False) -> list:
 
 		"""
 			Returns list with: peer_id, chat_title, url_to_chat_pic
@@ -75,11 +75,14 @@ class DrivenCore:
 		while answer['items']:
 			for i in answer['items']:
 				if i['conversation']['peer']['type'] not in ['user', 'group']:
+					chat_pic = None
+					if with_pictures:
+						chat_pic = self._get_chat_picture_url_by_peer_id(i['conversation']['peer']['id'])
 					chats.append(
 						(
 							i['conversation']['peer']['id'],
 							i['conversation']['chat_settings']['title'],
-							self._get_chat_picture_url_by_peer_id(i['conversation']['peer']['id'])
+							chat_pic
 						)
 					)
 			offset += len(answer['items'])
