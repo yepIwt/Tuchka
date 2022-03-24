@@ -30,6 +30,10 @@ class ArchiveView(QtWidgets.QWidget):
 		self.atchs = attachments
 		self.current = current
 
+		print("ARCHIVE VIEW CURRENT", current)
+		for a in attachments:
+			print(a)
+
 		self.add_releases_to_ui()
 
 	def create_widget(self, release_title, commit_name, release_unix_time, release_file_url, N): # N - порядковый номер в atchs

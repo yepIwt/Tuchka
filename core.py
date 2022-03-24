@@ -271,7 +271,7 @@ class DrivenCore:
 			if self.cfg.data['archives'][i]['id'] == chat_id:
 				n = i
 				break
-		folder = self.cfg.data['archives'][i]['folder']
+		folder = self.cfg.data['archives'][n]['folder']
 
 		if not os.access(folder, os.R_OK):
 			os.mkdir(folder)
@@ -281,6 +281,10 @@ class DrivenCore:
 		file_data = self._upload_file("encrypted", chat_id)
 
 		self._send_file_to_chat_id(file_data, commit_message, chat_id)
+
+		self.cfg.data['archives'][n]['current'] = file_data['doc']['date']
+		self.cfg.save()
+
 		files = self._get_history_attachments_by_peer_id(peer_id = chat_id)
 		answ = (
 			files,
