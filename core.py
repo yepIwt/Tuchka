@@ -210,14 +210,15 @@ class DrivenCore:
 		logger.success(f"End 'get_history_attachments_by_peer_id' function with len(result) = {len(files)}")
 		return files
 
-	def _upload_file(self, file_path) -> dict:
+	def _upload_file(self, file_path, peer_id) -> dict:
 		if os.access(file_path, os.R_OK):
 			file_title = "there_must_be_random_string"
 			f = open(file_path, 'rb')
 			up = vk_api.VkUpload(self._vk_api)
-			file_data = up.document(
+			file_data = up.document_message(
 				title = file_title,
-				doc = f
+				doc = f,
+				peer_id = peer_id
 			)
 			return file_data
 		return {}
@@ -233,10 +234,19 @@ class DrivenCore:
 			attachment = f"doc{owner_id}_{file_id}",
 			random_id = vk_api.utils.get_random_id(),
 		)
-	
+
 	def change_release(self, url_to_file, folder):
 		print(f"Скачать файл {url_to_file} и анпак в {folder}")
-		#r = requests.get(url_to_file)
+		r = requests.get(url_to_file)
+		with open("encrypted", 'wb') as f:
+			f.write(r.content)
+
+		self.cfg.decrypt("encrypted")
+		if not os.access(folder, os.R_OK):
+			os.mkdir(folder)
+		
+		make_unzip_file("decrypted.zip", folder)
+
 
 	def synchronization(self, chat_id, commit_message):
 		for i in range(len(self.cfg.data['archives'])):
@@ -245,11 +255,16 @@ class DrivenCore:
 				break
 		folder = self.cfg.data['archives'][i]['folder']
 
-		if os.access(folder, os.R_OK):
-			path_to_archive = make_zip_dir(folder)
-			self.cfg.encrypt(path_to_archive)
-			file_data = self._upload_file("encrypted")
-			self._send_file_to_chat_id(file_data, commit_message, chat_id)
+		if not os.access(folder, os.R_OK):
+			os.mkdir(folder)
+
+		path_to_archive = make_zip_dir(folder)
+		self.cfg.encrypt(path_to_archive)
+		file_data = self._upload_file("encrypted", chat_id)
+
+		self._send_file_to_chat_id(file_data, commit_message, chat_id)
+		files = self._get_history_attachments_by_peer_id(peer_id = chat_id)
+		return files, file_data['doc']['date']
 
 if __name__ == "__main__":
 	c = confs.Config()

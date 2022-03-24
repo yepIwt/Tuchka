@@ -1,4 +1,5 @@
 from re import M
+from unicodedata import name
 from PyQt5 import QtCore, QtWidgets, uic, QtGui
 import sys
 
@@ -28,7 +29,6 @@ class ArchiveView(QtWidgets.QWidget):
 		self.chat_id = chat_id
 		self.atchs = attachments
 		self.current = current
-
 
 		self.add_releases_to_ui()
 
@@ -74,7 +74,7 @@ class ArchiveView(QtWidgets.QWidget):
 		widgetLayout.addLayout(commit_lay); widgetLayout.addWidget(change_release_btn); widgetLayout.addStretch()
 
 		widget.setLayout(widgetLayout); itemN.setSizeHint(widget.sizeHint())
-		
+
 		return itemN, widget
 	
 	def add_releases_to_ui(self):
@@ -99,12 +99,19 @@ class ArchiveView(QtWidgets.QWidget):
 	
 	def go_change_release_virtual(self, attachment):
 		pass
-	
-	def settings_virtual(self, chat_id):
+
+	def settings_virtual(chat_id):
 		pass
 	
+
 	def go_create_release(self):
-		self.go_create_release_virtual(self.chat_id, self.release_name.text() or "No comment.")
+		new_releases, new_current = self.go_create_release_virtual(self.chat_id, self.release_name.text() or "No comment.")
+		self.ReleasesWidget.clear()
+		self.atchs = new_releases
+		self.current = new_current
+
+		self.add_releases_to_ui()
+		
 
 	def go_create_release_virtual(self, chat_id, folder):
 		pass
@@ -244,23 +251,27 @@ class MainWindow(QtWidgets.QMainWindow):
 	def open_archive(self, item):
 
 		archive_releases = self.d._get_history_attachments_by_peer_id(item.peer_id)
-		
-		names_and_commits = []
-		for fid, unix_time, url_to_file, commit_msg in archive_releases:
-			fl = self.d._get_f_l_by_user_id(fid)
-			names_and_commits.append(
-				[
-					fl, commit_msg, url_to_file, unix_time, item.peer_id
-				]
-			)
+		nms_cms = self.catch_names_and_commits_from_archive_attachments(item.peer_id, archive_releases)
 
-		sel_ach = ArchiveView(item.text(), item.peer_id, item.current_release, names_and_commits)
+		sel_ach = ArchiveView(item.text(), item.peer_id, item.current_release, nms_cms)
 		sel_ach.go_change_release_virtual = self.change_release
 		sel_ach.settings_virtual = self.open_settings_for_chat_id
 		sel_ach.go_create_release_virtual = self.new_release
 		self.pages.addWidget(sel_ach)
 
 		self.pages.setCurrentIndex(1)
+	
+	def catch_names_and_commits_from_archive_attachments(self, chat_id, archive_attachemnts):
+		names_and_commits = []
+
+		for fid, unix_time, url_to_file, commit_msg in archive_attachemnts:
+			fl = self.d._get_f_l_by_user_id(fid)
+			names_and_commits.append(
+				[
+					fl, commit_msg, url_to_file, unix_time, chat_id
+				]
+			)
+		return names_and_commits
 	
 	def open_settings_for_chat_id(self, chat_id):
 
@@ -293,10 +304,10 @@ class MainWindow(QtWidgets.QMainWindow):
 		)
 	
 	def new_release(self, chat_id, commit_name):
-		self.d.synchronization(chat_id, commit_name)
+		new_releases, new_current = self.d.synchronization(chat_id, commit_name)
+		names_and_cms = self.catch_names_and_commits_from_archive_attachments(chat_id, new_releases)
+		return names_and_cms, new_current
 
-
-	
 	def save_settings(self, chat_id, new_folder_path):
 		for i in range(len(self.d.cfg.data['archives'])):
 			if self.d.cfg.data['archives'][i]['id'] == chat_id:
