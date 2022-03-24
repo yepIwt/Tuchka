@@ -207,33 +207,26 @@ class DrivenCore:
 				start_from=answer['next_from']
 			)
 
-		logger.success(f"End 'get_history_attachments_by_peer_id' function with len(result) = {len(files)}")
+		new_files, new_order = self.add_order_to_files(files, self.cfg.data['order'])
+		self.cfg.data['order'] = new_order
+		self.cfg.save()
 
+		return new_files
+	
+	def add_order_to_files(self, files, order):
 
-		logger.debug(f"Start finding order. Len(CurrentOrder) = {len(self.cfg.data['order'])}")
-		logger.debug(f"Oder = {self.cfg.data['order']}")
 		finished_order = [] # значит, что объект из очереди выгрузился в вк
 
-		for ordered in self.cfg.data['order']:
+		for ordered in order:
 			for attachments in files:
 				if attachments[1] == ordered[1]:
 					finished_order.append(ordered)
-		
-		
 
-		self.cfg.data['order'] = list(set(self.cfg.data['order']) - set(finished_order))
-			
-		logger.debug(f"Finished order = {finished_order}")
-		logger.debug(f"Order saved = {self.cfg.data['order']}")
-		if self.cfg.data['order']:
-			files.insert(0, self.cfg.data['order'])
-		self.cfg.save()
+		new_order = list(set(order) - set(finished_order))
 
-		
-
-
-
-		return files
+		if new_order:
+			files = new_order + files
+		return files, new_order
 
 	def _upload_file(self, file_path, peer_id) -> dict:
 		if os.access(file_path, os.R_OK):

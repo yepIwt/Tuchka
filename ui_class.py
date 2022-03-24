@@ -103,13 +103,6 @@ class ArchiveView(QtWidgets.QWidget):
 	def settings_virtual(chat_id):
 		pass
 	
-				# 	(
-				# 		from_id,
-				# 		date_unix,
-				# 		url_to_file,
-				# 		commit_message
-				# 	)
-				# )
 	def go_create_release(self):
 		new_releases, new_current = self.go_create_release_virtual(self.chat_id, self.release_name.text() or "No comment.")
 		self.ReleasesWidget.clear()
@@ -310,15 +303,23 @@ class MainWindow(QtWidgets.QMainWindow):
 		)
 
 	def new_release(self, chat_id, commit_name):
+
 		new_releases, new_current, from_id, url_to_file, commit_message, = self.d.synchronization(chat_id, commit_name)
-		names_and_cms = self.catch_names_and_commits_from_archive_attachments(chat_id, new_releases)
-		self.d.cfg.data['order'].append((
-			from_id,
-			new_current,
-			url_to_file,
-			commit_message
-		))
+		self.d.cfg.data['order'].append(
+			(
+				from_id,
+				new_current,
+				url_to_file,
+				commit_message
+			)
+		)
 		self.d.cfg.save()
+
+		new_releases_with_order, new_order = self.d.add_order_to_files(new_releases, self.d.cfg.data['order'])
+		
+		names_and_cms = self.catch_names_and_commits_from_archive_attachments(chat_id, new_releases_with_order)
+		
+		
 		return names_and_cms, new_current
 
 	def save_settings(self, chat_id, new_folder_path):
