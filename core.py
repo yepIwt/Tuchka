@@ -236,8 +236,7 @@ class DrivenCore:
 	
 	def change_release(self, url_to_file, folder):
 		print(f"Скачать файл {url_to_file} и анпак в {folder}")
-		r = requests.get(url_to_file)
-		pass
+		#r = requests.get(url_to_file)
 
 	def synchronization(self, chat_id, commit_message):
 		for i in range(len(self.cfg.data['archives'])):

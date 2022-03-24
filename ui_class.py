@@ -1,97 +1,6 @@
+from re import M
 from PyQt5 import QtCore, QtWidgets, uic, QtGui
 import sys
-
-
-def create_ui_release_widget(name, commit_name):
-	wid = QtWidgets.QWidget()
-	vlay = QtWidgets.QVBoxLayout()
-
-	text1 = QtWidgets.QLabel(name)
-	text2 = QtWidgets.QLabel(commit_name)
-	text1.setStyleSheet("font-family:'Open Sans'; font-size:20px; font-weight:696; color:#ffffff;")
-	text2.setStyleSheet("font-family:'Open Sans'; font-size:35px; font-weight:696; color:#ffffff;")
-	btn = QtWidgets.QPushButton("Press me!")
-	
-	vlay.addWidget(text1)
-	vlay.addWidget(text2)
-	vlay.addWidget(btn)
-	
-	sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
-	
-	wid.setSizePolicy(sizePolicy)
-	wid.setLayout(vlay)
-	
-	wid.setStyleSheet('''
-		QWidget{
-		border: None; 
-		border-bottom: 2px solid white; 
-		color: rgba(255, 255, 255, 230); 
-		padding-bottom: 1px; }
-		QLabel {border: None};
-		QPushButton {border: 2px solid black};
-		''')
-	
-	return wid
-
-def create_ui_release_widget2(name, commit_name, unixtime, url_to_release, func, chat_id, current = False):
-	itemN = QtWidgets.QListWidgetItem() 
-
-	widget = QtWidgets.QWidget()
-	widget.setStyleSheet('''
-		QWidget{
-		border: None; 
-		border-bottom: 2px solid white; 
-		color: rgba(255, 255, 255, 230); 
-		padding-bottom: 1px; 
-		}
-		QLabel {
-			border: None
-		};
-		
-		''')
-	
-	sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
-	
-	widget.setSizePolicy(sizePolicy)
-
-	widgetText =  QtWidgets.QLabel(name)
-	widgetText.setStyleSheet("font-family:'Open Sans'; font-size:20px; font-weight:696; color:#ffffff;")
-
-	widgetText3 = QtWidgets.QLabel(commit_name)
-	widgetText3.setStyleSheet("font-family:'Open Sans'; font-size:35px; font-weight:696; color:#ffffff;")
-
-	widgetButton =  QtWidgets.QPushButton("Сменить")
-	widgetButton.setStyleSheet("QPushButton {border-bottom: 2px solid white; border-right: 2px solid white; font-size:15px; color:#ffffff;}")
-
-	if current:
-		widgetButton.setText("Текущий")
-		widgetButton.setDisabled(True)
-		widgetButton.setStyleSheet("QPushButton {border-bottom: 2px solid white; border-right: 2px solid white; font-size:15px; color: red;}")
-	
-
-	widgetButton.clicked.connect(func)
-	# Meta Data
-	widget.unixtime = unixtime
-	widget.url = url_to_release
-	widget.chat_id = chat_id
-
-	widgetLayout = QtWidgets.QHBoxLayout()
-	
-	commit_lay = QtWidgets.QVBoxLayout()
-	
-	commit_lay.addWidget(widgetText)
-	commit_lay.addWidget(widgetText3)
-
-	widgetLayout.addLayout(commit_lay)
-	widgetLayout.addWidget(widgetButton)
-	widgetLayout.addStretch()
-
-	#widgetLayout.setSizeConstraint(QtWidgets.QLayout.SetFixedSize)
-	widget.setLayout(widgetLayout)  
-	itemN.setSizeHint(widget.sizeHint())    
-
-	#Add widget to QListWidget funList
-	return itemN, widget
 
 
 class Registration(QtWidgets.QMainWindow):
@@ -120,21 +29,73 @@ class ArchiveView(QtWidgets.QWidget):
 		self.atchs = attachments
 		self.current = current
 
-		vlay = QtWidgets.QVBoxLayout()
-		for a in attachments:
-			flag = False
-			if a[3] == self.current:
-				flag = True
 
-			itemN, widget = create_ui_release_widget2(a[0], a[1]  or "(No comment.)", a[3], a[2], func = self.go_change_release, chat_id = a[4], current = flag)
+		self.add_releases_to_ui()
+
+	def create_widget(self, release_title, commit_name, release_unix_time, release_file_url, N): # N - порядковый номер в atchs
+		itemN = QtWidgets.QListWidgetItem(); widget = QtWidgets.QWidget()
+		widget.setStyleSheet('''
+			QWidget{
+				border: None; 
+				border-bottom: 2px solid white; 
+				color: rgba(255, 255, 255, 230); 
+				padding-bottom: 1px; 
+			}
+			QLabel {
+				border: None
+			};
+		''')
+		
+		sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+		widget.setSizePolicy(sizePolicy)
+		
+		archive_name_text =  QtWidgets.QLabel(release_title)
+		archive_name_text.setStyleSheet("font-family:'Open Sans'; font-size:20px; font-weight:696; color:#ffffff;")
+		
+		commit_text = QtWidgets.QLabel(commit_name)
+		commit_text.setStyleSheet("font-family:'Open Sans'; font-size:35px; font-weight:696; color:#ffffff;")
+		
+		change_release_btn =  QtWidgets.QPushButton("Сменить")
+		change_release_btn.setStyleSheet("QPushButton {border-bottom: 2px solid white; border-right: 2px solid white; font-size:15px; color:#ffffff;}")
+		
+		if self.current == release_unix_time:
+			change_release_btn.setText("Текущий")
+			change_release_btn.setDisabled(True)
+			change_release_btn.setStyleSheet("QPushButton {border-bottom: 2px solid white; border-right: 2px solid white; font-size:15px; color: red;}")
+		
+		change_release_btn.clicked.connect(self.go_change_release)
+	
+		# Meta Data
+		change_release_btn.N = N
+
+		widgetLayout = QtWidgets.QHBoxLayout()
+		commit_lay = QtWidgets.QVBoxLayout()	
+		commit_lay.addWidget(archive_name_text); commit_lay.addWidget(commit_text)
+		widgetLayout.addLayout(commit_lay); widgetLayout.addWidget(change_release_btn); widgetLayout.addStretch()
+
+		widget.setLayout(widgetLayout); itemN.setSizeHint(widget.sizeHint())
+		
+		return itemN, widget
+	
+	def add_releases_to_ui(self):
+		for i,rel in enumerate(self.atchs):
+			itemN, widget = self.create_widget(
+				release_title = rel[0],
+				commit_name = rel[1]  or "(No comment.)", 
+				release_unix_time = rel[3],
+				release_file_url = rel[2],
+				N = i,
+			)
 			self.ReleasesWidget.addItem(itemN)
 			self.ReleasesWidget.setItemWidget(itemN, widget)
 
 	@QtCore.pyqtSlot()
 	def go_change_release(self):
 		button = self.sender()
-		n = self.ReleasesWidget.indexAt(button.pos()).row()
-		self.go_change_release_virtual(self.atchs[n])
+		self.go_change_release_virtual(self.atchs[button.N])
+		self.ReleasesWidget.clear()
+		self.current = self.atchs[button.N][3]
+		self.add_releases_to_ui()
 	
 	def go_change_release_virtual(self, attachment):
 		pass
@@ -309,7 +270,7 @@ class MainWindow(QtWidgets.QMainWindow):
 				n = i
 				break
 		
-		archive = self.d.cfg.data['archives'][i]
+		archive = self.d.cfg.data['archives'][n]
 		
 		self.hwnd = Settings(archive['id'], archive['folder'])
 		self.hwnd.accept_virtual = self.save_settings
@@ -323,10 +284,12 @@ class MainWindow(QtWidgets.QMainWindow):
 				break
 		
 		#Меняем current на выбранный unixtime
-		self.d.cfg.data['archives'][i]['current'] = attachment[3]
+		self.d.cfg.data['archives'][n]['current'] = attachment[3]
+		self.d.cfg.save()
+
 		self.d.change_release(
 			url_to_file = attachment[2][0],
-			folder = self.d.cfg.data['archives'][i]['folder']
+			folder = self.d.cfg.data['archives'][n]['folder']
 		)
 	
 	def new_release(self, chat_id, commit_name):
