@@ -9,7 +9,7 @@ import os, requests
 import zipfile
 import vk_api
 import confs
-
+import shutil
 from loguru import logger
 
 VK_MESSAGE_CONSTANT = 2000000000
@@ -254,7 +254,6 @@ class DrivenCore:
 		)
 
 	def change_release(self, url_to_file, folder):
-		print(f"Скачать файл {url_to_file} и анпак в {folder}")
 		r = requests.get(url_to_file)
 		with open("encrypted", 'wb') as f:
 			f.write(r.content)
@@ -262,11 +261,12 @@ class DrivenCore:
 		self.cfg.decrypt("encrypted")
 		if not os.access(folder, os.R_OK):
 			os.mkdir(folder)
-		
-		make_unzip_file("decrypted.zip", folder)
+
+		shutil.rmtree(folder)
+		make_unzip_file("decrypted.zip", os.path.dirname(folder))
 
 
-	def synchronization(self, chat_id, commit_message):
+	def synchronization(self, chat_id, commit_message): # Отправка на сервер
 		for i in range(len(self.cfg.data['archives'])):
 			if self.cfg.data['archives'][i]['id'] == chat_id:
 				n = i
@@ -290,7 +290,7 @@ class DrivenCore:
 			files,
 			file_data['doc']['date'],
 			file_data['doc']['owner_id'],
-			file_data['doc']['url'],
+			(file_data['doc']['url'],0),
 			commit_message
 		)
 		return answ
