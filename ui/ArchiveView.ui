@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>778</width>
-    <height>384</height>
+    <width>697</width>
+    <height>581</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -33,32 +33,39 @@ color:#ffffff;</string>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="UpdateButton">
-       <property name="styleSheet">
-        <string notr="true">font-family:'Open Sans'; 
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QPushButton" name="SettingsButton">
+         <property name="styleSheet">
+          <string notr="true">font-family:'Open Sans'; 
 font-size:45px; 
 font-weight:696; 
 color:#ffffff;
 border: None;</string>
-       </property>
-       <property name="text">
-        <string>🆙</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="SettingsButton">
-       <property name="styleSheet">
-        <string notr="true">font-family:'Open Sans'; 
+         </property>
+         <property name="text">
+          <string>⚙</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="UpdateButton">
+         <property name="styleSheet">
+          <string notr="true">font-family:'Open Sans'; 
 font-size:45px; 
 font-weight:696; 
 color:#ffffff;
 border: None;</string>
-       </property>
-       <property name="text">
-        <string>⚙</string>
-       </property>
-      </widget>
+         </property>
+         <property name="text">
+          <string>🆙</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
@@ -66,10 +73,17 @@ border: None;</string>
     <layout class="QHBoxLayout" name="horizontalLayout_2"/>
    </item>
    <item>
-    <widget class="QListWidget" name="ReleasesWidget"/>
+    <widget class="QListWidget" name="ReleasesWidget">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="QLineEdit" name="release_name">
        <property name="styleSheet">
@@ -89,7 +103,7 @@ padding-bottom: 1px;</string>
        </property>
       </widget>
      </item>
-     <item alignment="Qt::AlignRight">
+     <item>
       <widget class="QPushButton" name="create_release">
        <property name="styleSheet">
         <string notr="true">font-family:'Open Sans'; 
