@@ -49,6 +49,7 @@ class Config:
 		data = {
 			"vk_api_token": vk_api_token,
 			"archives": [],
+			'order': [],
 		}
 		self.data = data
 		self.__cryptomethod = CryptoMethod(new_password, self.__config_path)

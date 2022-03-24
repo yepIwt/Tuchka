@@ -208,6 +208,31 @@ class DrivenCore:
 			)
 
 		logger.success(f"End 'get_history_attachments_by_peer_id' function with len(result) = {len(files)}")
+
+
+		logger.debug(f"Start finding order. Len(CurrentOrder) = {len(self.cfg.data['order'])}")
+		logger.debug(f"Oder = {self.cfg.data['order']}")
+		finished_order = [] # значит, что объект из очереди выгрузился в вк
+
+		for ordered in self.cfg.data['order']:
+			for attachments in files:
+				if attachments[1] == ordered[1]:
+					finished_order.append(ordered)
+		
+		
+
+		self.cfg.data['order'] = list(set(self.cfg.data['order']) - set(finished_order))
+			
+		logger.debug(f"Finished order = {finished_order}")
+		logger.debug(f"Order saved = {self.cfg.data['order']}")
+		if self.cfg.data['order']:
+			files.insert(0, self.cfg.data['order'])
+		self.cfg.save()
+
+		
+
+
+
 		return files
 
 	def _upload_file(self, file_path, peer_id) -> dict:
@@ -264,7 +289,14 @@ class DrivenCore:
 
 		self._send_file_to_chat_id(file_data, commit_message, chat_id)
 		files = self._get_history_attachments_by_peer_id(peer_id = chat_id)
-		return files, file_data['doc']['date']
+		answ = (
+			files,
+			file_data['doc']['date'],
+			file_data['doc']['owner_id'],
+			file_data['doc']['url'],
+			commit_message
+		)
+		return answ
 
 if __name__ == "__main__":
 	c = confs.Config()
