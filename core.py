@@ -265,6 +265,9 @@ class DrivenCore:
 		shutil.rmtree(folder)
 		make_unzip_file("decrypted.zip", os.path.dirname(folder))
 
+		os.remove("decrypted.zip")
+		os.remove("encrypted")
+
 
 	def synchronization(self, chat_id, commit_message): # Отправка на сервер
 		for i in range(len(self.cfg.data['archives'])):
@@ -281,6 +284,9 @@ class DrivenCore:
 		file_data = self._upload_file("encrypted", chat_id)
 
 		self._send_file_to_chat_id(file_data, commit_message, chat_id)
+
+		os.remove("decrypted.zip")
+		os.remove("encrypted")
 
 		self.cfg.data['archives'][n]['current'] = file_data['doc']['date']
 		self.cfg.save()
