@@ -2,7 +2,7 @@ import ui_class
 import core
 import confs
 from PyQt5 import QtCore, QtWidgets, uic, QtGui
-import sys
+import os, sys
 
 """
 	Заметка алгоритма.
@@ -24,6 +24,9 @@ if __name__ == "__main__":
 		# Локер (ввод пароля)
 		LockerApp = QtWidgets.QApplication(sys.argv)
 		Locker = ui_class.Locker(c)
+		Locker.setWindowTitle("Tuchka: Login")
+		Locker.setWindowIcon(QtGui.QIcon("ui/Icon.jpg"))
+		
 		Locker.show()
 		LockerApp.exec_()
 
@@ -33,6 +36,8 @@ if __name__ == "__main__":
 		# Локер (новый пароль)
 		LockerApp = QtWidgets.QApplication(sys.argv)
 		Locker = ui_class.Locker(c)
+		Locker.setWindowTitle("Tuchka: Login")
+		Locker.setWindowIcon(QtGui.QIcon("ui/Icon.jpg"))
 		Locker.show()
 		LockerApp.exec_()
 
@@ -64,6 +69,8 @@ if __name__ == "__main__":
 		ListArchivesViewApp.exec_()
 
 		c.data['archives'] = Chats.archives
+		for arch in Chats.archives:
+			os.mkdir(arch['folder'])
 		c.save()
 
 	"""

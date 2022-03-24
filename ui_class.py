@@ -1,7 +1,8 @@
 from re import M
+import shutil
 from unicodedata import name
 from PyQt5 import QtCore, QtWidgets, uic, QtGui
-import sys
+import os,sys
 
 
 class Registration(QtWidgets.QMainWindow):
@@ -342,6 +343,11 @@ class MainWindow(QtWidgets.QMainWindow):
 			if self.d.cfg.data['archives'][i]['id'] == chat_id:
 				n = i
 				break
+
+		shutil.rmtree(self.d.cfg.data['archives'][i]['folder'])
+		if not os.access(new_folder_path, os.R_OK):
+			os.mkdir(new_folder_path)
+
 		self.d.cfg.data['archives'][i]['folder'] = new_folder_path
 		self.d.cfg.save()
 
