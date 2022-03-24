@@ -75,5 +75,7 @@ if __name__ == "__main__":
 	# Выбор уже Сохраненных Архивов
 	MainApp = QtWidgets.QApplication(sys.argv)
 	MainWindow = ui_class.MainWindow(config = c, pcore = ProgramCore)
+	MainWindow.setWindowTitle("Tuchka")
+	MainWindow.setWindowIcon(QtGui.QIcon("ui/Icon.jpg"))
 	MainWindow.show()
 	MainApp.exec_()
