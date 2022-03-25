@@ -61,6 +61,9 @@ class DrivenCore:
 		_, self._vk_api = get_vk_api(token=self.cfg.data['vk_api_token'])
 		logger.success('VK API granted!')
 
+	def _create_new_chat(self, title):
+		self._vk_api.messages.createChat(title = title)
+
 	def _get_all_chats(self, with_pictures = False) -> list:
 
 		"""
