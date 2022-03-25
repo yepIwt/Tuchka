@@ -350,7 +350,10 @@ class MainWindow(QtWidgets.QMainWindow):
 				n = i
 				break
 
-		shutil.rmtree(self.d.cfg.data['archives'][i]['folder'])
+		try:
+			shutil.rmtree(self.d.cfg.data['archives'][i]['folder'])
+		except:
+			pass
 		if not os.access(new_folder_path, os.R_OK):
 			os.mkdir(new_folder_path)
 

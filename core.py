@@ -11,6 +11,7 @@ import vk_api
 import confs
 import shutil
 from loguru import logger
+import random, string
 
 VK_MESSAGE_CONSTANT = 2000000000
 
@@ -233,7 +234,8 @@ class DrivenCore:
 
 	def _upload_file(self, file_path, peer_id) -> dict:
 		if os.access(file_path, os.R_OK):
-			file_title = "there_must_be_random_string"
+			letters = string.ascii_lowercase + string.ascii_lowercase.capitalize()
+			file_title = ''.join(random.choice(letters) for i in range(10))
 			f = open(file_path, 'rb')
 			up = vk_api.VkUpload(self._vk_api)
 			file_data = up.document_message(
