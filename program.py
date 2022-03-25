@@ -46,6 +46,8 @@ if __name__ == "__main__":
 		# Логин+Пароль
 		LoginInterfaceApp = QtWidgets.QApplication(sys.argv)
 		LoginInterface = ui_class.Registration()
+		LoginInterface.setWindowTitle("Tuchka: Registration")
+		LoginInterface.setWindowIcon(QtGui.QIcon("ui/Icon.jpg"))
 		LoginInterface.show()
 		LoginInterfaceApp.exec_()
 
@@ -65,12 +67,17 @@ if __name__ == "__main__":
 		# Выбор чатов для Архива
 		ListArchivesViewApp = QtWidgets.QApplication(sys.argv)
 		Chats = ui_class.ListArchivesView(chats = AllChats)
+		Chats.setWindowTitle("Tuchka: Select new archives")
+		Chats.setWindowIcon(QtGui.QIcon("ui/Icon.jpg"))
 		Chats.show()
 		ListArchivesViewApp.exec_()
 
 		c.data['archives'] = Chats.archives
 		for arch in Chats.archives:
-			os.mkdir(arch['folder'])
+			try:
+				os.mkdir(arch['folder'])
+			except:
+				pass
 		c.save()
 
 	"""

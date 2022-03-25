@@ -12,6 +12,10 @@ class Registration(QtWidgets.QMainWindow):
 		super(Registration, self).__init__()
 		uic.loadUi('ui/FirstRegistration.ui', self)
 		self.ExecuteButton.clicked.connect(self.get_credentials)
+		subscribed = False
+		if not subscribed:
+			self.LoginLine.setPlaceholderText("Токен ВК АПИ")
+			self.PasswordLine.setEnabled(False)
 	
 	def get_credentials(self):
 		log = self.LoginLine.text()
@@ -299,6 +303,8 @@ class MainWindow(QtWidgets.QMainWindow):
 		archive = self.d.cfg.data['archives'][n]
 		
 		self.hwnd = Settings(archive['id'], archive['folder'])
+		self.hwnd.setWindowTitle("Tuchka: Archive settings")
+		self.hwnd.setWindowIcon(QtGui.QIcon("ui/Icon.jpg"))
 		self.hwnd.accept_virtual = self.save_settings
 		self.hwnd.show()
 	
@@ -357,6 +363,7 @@ class Locker(QtWidgets.QMainWindow):
 		super(Locker, self).__init__()
 		uic.loadUi('ui/Locker.ui', self)
 		self.ExecuteButton.clicked.connect(self.enter)
+		self.ConfigPassword.setEchoMode(QtWidgets.QLineEdit.Password)
 		self.passw = None
 		self.c = config
 

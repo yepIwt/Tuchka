@@ -75,6 +75,9 @@
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <widget class="QLineEdit" name="LoginLine">
+           <property name="focusPolicy">
+            <enum>Qt::ClickFocus</enum>
+           </property>
            <property name="styleSheet">
             <string notr="true">color: white;
 font-size: 35px;
@@ -104,7 +107,11 @@ background-color: rgba(0,0,0,0);
 border: None;
 border-bottom: 2px solid white;
 color: rgba(255, 255, 255, 230);
-padding-bottom: 1px;</string>
+padding-bottom: 1px;
+
+QLineEdit:: disabled {
+	background-color: black;
+}</string>
            </property>
            <property name="text">
             <string/>
