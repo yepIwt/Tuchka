@@ -303,7 +303,7 @@ class MainWindow(QtWidgets.QMainWindow):
 		
 		self.hwnd = Settings(archive['id'], archive['folder'])
 		self.hwnd.setWindowTitle("Tuchka: Archive settings")
-		self.hwnd.setWindowIcon(QtGui.QIcon("ui/Icon.jpg"))
+		self.hwnd.setWindowIcon(QtGui.QIcon("ui/Icon.png"))
 		self.hwnd.accept_virtual = self.save_settings
 		self.hwnd.show()
 	

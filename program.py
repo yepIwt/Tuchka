@@ -25,7 +25,7 @@ if __name__ == "__main__":
 		LockerApp = QtWidgets.QApplication(sys.argv)
 		Locker = ui_class.Locker(c)
 		Locker.setWindowTitle("Tuchka: Login")
-		Locker.setWindowIcon(QtGui.QIcon("ui/Icon.jpg"))
+		Locker.setWindowIcon(QtGui.QIcon("ui/Icon.png"))
 		
 		Locker.show()
 		LockerApp.exec_()
@@ -37,7 +37,7 @@ if __name__ == "__main__":
 		LockerApp = QtWidgets.QApplication(sys.argv)
 		Locker = ui_class.Locker(c)
 		Locker.setWindowTitle("Tuchka: Login")
-		Locker.setWindowIcon(QtGui.QIcon("ui/Icon.jpg"))
+		Locker.setWindowIcon(QtGui.QIcon("ui/Icon.png"))
 		Locker.show()
 		LockerApp.exec_()
 
@@ -47,7 +47,7 @@ if __name__ == "__main__":
 		LoginInterfaceApp = QtWidgets.QApplication(sys.argv)
 		LoginInterface = ui_class.Registration()
 		LoginInterface.setWindowTitle("Tuchka: Registration")
-		LoginInterface.setWindowIcon(QtGui.QIcon("ui/Icon.jpg"))
+		LoginInterface.setWindowIcon(QtGui.QIcon("ui/Icon.png"))
 		LoginInterface.show()
 		LoginInterfaceApp.exec_()
 
@@ -68,7 +68,7 @@ if __name__ == "__main__":
 		ListArchivesViewApp = QtWidgets.QApplication(sys.argv)
 		Chats = ui_class.ListArchivesView(chats = AllChats)
 		Chats.setWindowTitle("Tuchka: Select new archives")
-		Chats.setWindowIcon(QtGui.QIcon("ui/Icon.jpg"))
+		Chats.setWindowIcon(QtGui.QIcon("ui/Icon.png"))
 		Chats.show()
 		ListArchivesViewApp.exec_()
 
@@ -90,6 +90,6 @@ if __name__ == "__main__":
 	MainApp = QtWidgets.QApplication(sys.argv)
 	MainWindow = ui_class.MainWindow(config = c, pcore = ProgramCore)
 	MainWindow.setWindowTitle("Tuchka")
-	MainWindow.setWindowIcon(QtGui.QIcon("ui/Icon.jpg"))
+	MainWindow.setWindowIcon(QtGui.QIcon("ui/Icon.png"))
 	MainWindow.show()
 	MainApp.exec_()
