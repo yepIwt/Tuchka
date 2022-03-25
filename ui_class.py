@@ -119,6 +119,7 @@ class ArchiveView(QtWidgets.QWidget):
 	
 	def go_create_release(self):
 		new_releases, new_current = self.go_create_release_virtual(self.chat_id, self.release_name.text() or "No comment.")
+		self.release_name.setText("")
 		self.ReleasesWidget.clear()
 		self.atchs = new_releases
 		self.current = new_current
@@ -171,10 +172,8 @@ class ListArchivesView(QtWidgets.QWidget):
 		chat_in_ui.setFlags(chat_in_ui.flags() | QtCore.Qt.ItemIsUserCheckable)
 		chat_in_ui.setCheckState(QtCore.Qt.Unchecked)
 		font = QtGui.QFont(); font.setPointSize(37); chat_in_ui.setFont(font)
-		
+
 		chat_in_ui.peer_id = chat_peer_id
-		
-		self.chats.setMinimumWidth(self.chats.sizeHintForColumn(0))
 		self.chats.addItem(chat_in_ui)
 
 	def add_archive_to_ui(self, archive_name, archive_peer_id, curr_rel_unix):
