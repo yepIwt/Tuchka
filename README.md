@@ -1,8 +1,8 @@
-# Driven
+# Tucka
 
-Driven - это облако на серверах ВКонтакте.
+Тучка - это облако на серверах ВКонтакте.
 
-[Документация по проекту](https://github.com/yepIwt/Driven/wiki)
+[Документация по проекту](https://github.com/yepIwt/Tuchka/wiki)
 
 
 
