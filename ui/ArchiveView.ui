@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>697</width>
+    <height>581</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: blue;</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="ChatName">
+       <property name="styleSheet">
+        <string notr="true">font-family:'Open Sans'; 
+font-size:45px; 
+font-weight:696; 
+color:#ffffff;</string>
+       </property>
+       <property name="text">
+        <string>Название чата</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QPushButton" name="SettingsButton">
+         <property name="styleSheet">
+          <string notr="true">font-family:'Open Sans'; 
+font-size:45px; 
+font-weight:696; 
+color:#ffffff;
+border: None;</string>
+         </property>
+         <property name="text">
+          <string>⚙</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="UpdateButton">
+         <property name="styleSheet">
+          <string notr="true">font-family:'Open Sans'; 
+font-size:45px; 
+font-weight:696; 
+color:#ffffff;
+border: None;</string>
+         </property>
+         <property name="text">
+          <string>🆙</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2"/>
+   </item>
+   <item>
+    <widget class="QListWidget" name="ReleasesWidget">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QLineEdit" name="release_name">
+       <property name="styleSheet">
+        <string notr="true">color: white;
+font-size: 30px;
+background-color: rgba(0,0,0,0);
+border: None;
+border-bottom: 2px solid white;
+color: rgba(255, 255, 255, 230);
+padding-bottom: 1px;</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="placeholderText">
+        <string>Введите название версии</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="create_release">
+       <property name="styleSheet">
+        <string notr="true">font-family:'Open Sans'; 
+font-size:30px; 
+font-weight:696; 
+color:#ffffff;</string>
+       </property>
+       <property name="text">
+        <string>Создать новый релиз</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

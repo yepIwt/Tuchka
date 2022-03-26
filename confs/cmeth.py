@@ -2,11 +2,12 @@ from Crypto.Cipher import AES
 import hashlib
 import os
 
-class LetItCrypt(object):
+class CryptoMethod:
 
-	def __init__(self, passw: str):
+	def __init__(self, passw: str, path_to_config: str):
 		self.key = hashlib.sha256(passw.encode()).digest()
 		self.mode = AES.MODE_EAX
+		self.cfg_path = path_to_config
 
 	def pad(self, text: bytes) -> bytes:
 		while len(text) % 16 != 0:
@@ -16,39 +17,47 @@ class LetItCrypt(object):
 	def enc_cfg(self, data: str) -> None:
 		cipher = AES.new(self.key, self.mode)
 		ciphertext, tag = cipher.encrypt_and_digest(data.encode())
-		file_out = open("data", "wb")
-		[ file_out.write(x) for x in (cipher.nonce, tag, ciphertext) ]
-		file_out.close()
+		with open(self.cfg_path, "wb") as file_out:
+			[ file_out.write(x) for x in (cipher.nonce, tag, ciphertext) ]
 
 	def dec_cfg(self) -> str:
-		file_in = open("data", "rb")
+		file_in = open(self.cfg_path, "rb")
 		nonce, tag, ciphertext = [ file_in.read(x) for x in (16, 16, -1) ]
 		cipher = AES.new(self.key, self.mode, nonce)
 		try:
 			data = cipher.decrypt_and_verify(ciphertext, tag)
 		except ValueError:
-			return ''
+			return 0 # empty string like False
 		else:
 			return data
 
-	def enc_file(self) -> None:
+	def encrypt_file(self, start_path: str, end_path: str) -> None:
+		"""
+			start_path: decrypted.zip
+			end_path: encrypted.zip
+		"""
+
 		cipher = AES.new(self.key, self.mode)
-		with open('decrypted.zip','rb') as f:
+		with open(start_path,'rb') as f:
 			decrypted_data = f.read()
 		ciphertext, tag = cipher.encrypt_and_digest(decrypted_data)
-		file_out = open("container", "wb")
-		[ file_out.write(x) for x in (cipher.nonce, tag, ciphertext) ]
-		file_out.close()
+		with open(end_path, "wb") as file_out:
+			[ file_out.write(x) for x in (cipher.nonce, tag, ciphertext) ]
 
-	def dec_file(self) -> None:
-		file_in = open("container", "rb")
+	def decrypt_file(self, end_path: str, start_path: str) -> bool:
+		"""
+			end_path: encrypted.zip
+			start_path: decrypted.zip
+		"""
+
+		file_in = open(end_path, "rb")
 		nonce, tag, ciphertext = [ file_in.read(x) for x in (16, 16, -1) ]
 		cipher = AES.new(self.key, self.mode, nonce)
 		try:
 			data = cipher.decrypt_and_verify(ciphertext, tag)
-		except:
-			print('Something wrong with container')
-			exit()
+		except Exception as err:
+			raise err
 		else:
-			with open('decrypted.zip','wb') as f:
+			with open(start_path,'wb') as f:
 				f.write(data)
+			return True
