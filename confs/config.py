@@ -11,7 +11,7 @@ logger.add("cash/program_log.log")
 class Config:
 	
 	data = None
-	__config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
+	__config_path = os.path.join(os.getcwd(), "data")
 	config_here = os.path.isfile(__config_path)
 
 	def __init__(self):

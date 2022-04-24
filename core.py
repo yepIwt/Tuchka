@@ -5,7 +5,7 @@
 	yepIwt, 2022
 """
 
-import os, requests
+import os, sys, requests
 import zipfile
 import vk_api
 import confs
@@ -62,7 +62,10 @@ class DrivenCore:
 		"""
 
 		self.cfg = config
-		_, self._vk_api = get_vk_api(token=self.cfg.data['vk_api_token'])
+		try:
+			_, self._vk_api = get_vk_api(token=self.cfg.data['vk_api_token'])
+		except:
+			sys.exit()
 		logger.success('VK API granted!')
 
 	def _create_new_chat(self, title):

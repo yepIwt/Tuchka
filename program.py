@@ -51,7 +51,10 @@ if __name__ == "__main__":
 		LoginInterface.show()
 		LoginInterfaceApp.exec_()
 
-		cr = LoginInterface.credentials
+		try:
+			cr = LoginInterface.credentials
+		except:
+			sys.exit()
 
 		# Пока только токены, ребят. Надо писать в саппорт чтобы дали права на права
 		token = cr[0] + cr[1]
