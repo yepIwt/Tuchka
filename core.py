@@ -34,10 +34,14 @@ def get_vk_api(login: str = None, passw: str = None, token: str = None) -> tuple
 		return True, api
 
 def make_zip_dir(path):
-	zipf = zipfile.ZipFile('decrypted.zip', 'w', zipfile.ZIP_DEFLATED)
-	for root, dirs, files in os.walk(path):
-		for file in files:
-			zipf.write(os.path.join(root, file), os.path.relpath(os.path.join(root, file), os.path.join(path, '..')))
+	zf = zipfile.ZipFile("decrypted.zip", "w", zipfile.ZIP_DEFLATED)
+	abs_src = os.path.abspath(path)
+	for dirname, subdirs, files in os.walk(path):
+		for filename in files:
+			absname = os.path.abspath(os.path.join(dirname, filename))
+			arcname = absname[len(abs_src) + 1:]
+			zf.write(absname, arcname)
+	zf.close()
 	return 'decrypted.zip'
 
 def make_unzip_file(path_to_archive, folder_path):
@@ -271,7 +275,7 @@ class DrivenCore:
 			os.mkdir(folder)
 
 		shutil.rmtree(folder)
-		make_unzip_file("decrypted.zip", os.path.dirname(folder))
+		make_unzip_file("decrypted.zip", folder)
 
 		os.remove("decrypted.zip")
 		os.remove("encrypted")

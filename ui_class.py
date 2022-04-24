@@ -308,7 +308,6 @@ class MainWindow(QtWidgets.QMainWindow):
 		self.hwnd.show()
 	
 	def change_release(self, attachment):
-		print("Пошла поехала смена релиза", attachment)
 		for i in range(len(self.d.cfg.data['archives'])):
 			if self.d.cfg.data['archives'][i]['id'] == attachment[4]:
 				n = i
