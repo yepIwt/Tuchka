@@ -62,12 +62,12 @@ class ArchiveView(QtWidgets.QWidget):
 		commit_text.setStyleSheet("font-family:'Open Sans'; font-size:35px; font-weight:696; color:#ffffff;")
 		
 		change_release_btn =  QtWidgets.QPushButton("Сменить")
-		change_release_btn.setStyleSheet("QPushButton {border-bottom: 2px solid white; border-right: 2px solid white; font-size:15px; color:#ffffff;}")
+		change_release_btn.setStyleSheet("QPushButton {border-bottom: 2px solid transparent; border-right: 2px solid transparent; font-size:20px; color:#ffffff;}")
 		
 		if self.current == release_unix_time:
 			change_release_btn.setText("Текущий")
 			change_release_btn.setDisabled(True)
-			change_release_btn.setStyleSheet("QPushButton {border-bottom: 2px solid white; border-right: 2px solid white; font-size:15px; color: red;}")
+			change_release_btn.setStyleSheet("QPushButton {border-bottom: 2px solid transparent; border-right: 2px solid transparent; font-size:20px; color: blue; background-color: #00ee50}")
 		
 		change_release_btn.clicked.connect(self.go_change_release)
 	
