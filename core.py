@@ -129,6 +129,22 @@ class TuchkaCore:
 
 		return url_to_picture
 
+
+	def _get_chat_title(self, peer_id: int) -> str:
+
+		logger.debug(f"Запуск функции _get_chat_title с аргументами peer_id={peer_id}.")
+
+		vk_answer = self.__vk_api.messages.getChat(
+			chat_id = peer_id - VK_MESSAGE_CONSTANT,
+		)
+
+		chat_title = vk_answer['title']
+
+		logger.success(f"Успешно получено название чата `{chat_title}` для peer_id={peer_id}.")
+
+		return chat_title
+
+
 	def _get_all_chats(self, with_pictures = False) -> list:
 
 		"""
@@ -184,23 +200,62 @@ class TuchkaCore:
 
 		return chats
 
-	
-	def _get_chat_title(self, peer_id: int) -> str:
-
-		logger.debug(f"Запуск функции _get_chat_title с аргументами peer_id={peer_id}.")
-
-		vk_answer = self.__vk_api.messages.getChat(
-			chat_id = peer_id - VK_MESSAGE_CONSTANT,
-		)
-
-		chat_title = vk_answer['title']
-
-		logger.success(f"Успешно получено название чата `{chat_title}` для peer_id={peer_id}.")
-
-		return chat_title
 
 	def _search_chat(self, title: str) -> list:
-		pass
+
+		"""
+			Возвращает list подобного типа: [
+				(
+					peer_id, chat_title, url_to_chat_pic
+				),
+				...,
+				...
+				]
+		"""
+		
+		logger.debug(f"Запуск функции _search_chat с аргументами title={title}")
+
+		chats = []
+
+		vk_answer = self.__vk_api.messages.search(
+			q = title,
+			count = 100,
+		)
+
+		offset = 0
+		while vk_answer['items']:
+
+			for chat_info in vk_answer['items']:
+
+				if chat_info['peer_id'] > VK_MESSAGE_CONSTANT:  # Это чат
+
+					flag = False
+
+					for pid, _, _ in chats:
+
+						if pid == chat_info['peer_id']:
+							flag = True
+
+					if not flag:
+
+						chats.append(
+							(
+								chat_info['peer_id'],
+								self._get_chat_title(chat_info['peer_id']),
+								self._get_chat_picture(chat_info['peer_id'])
+							)
+						)
+
+			offset += len(vk_answer['items'])
+
+			vk_answer = self.__vk_api.messages.search(
+				q = title,
+				count = 100,
+				offset = offset
+			)
+
+		logger.success(f"Успешно найдены чаты с названием `{title}`({len(chats)})")
+		return chats
 
 	def _get_firstlast_name(self, uid) -> tuple:
 		pass
@@ -214,5 +269,5 @@ if __name__ == "__main__":
 	token = os.getenv("VK_TOKEN")
 	cfg.new_cfg(token, "12345")
 	t = TuchkaCore(cfg)
-	tt = t._get_chat_title(2000000004)
+	tt = t._search_chat("Хак")
 	print(tt)
