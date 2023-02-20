@@ -36,6 +36,7 @@ def get_vk_api(
 		logger.success("VKAPI успешно получен.")
 		return True, api
 
+
 def zip_dir(path: str) -> str:
 
 	logger.debug("Запуск функции zip_dir")
@@ -55,3 +56,18 @@ def zip_dir(path: str) -> str:
 	logger.success(f"zip_dir сохранил файл по пути: {path_to_file}")
 
 	return path_to_file
+
+
+def unzip_dir(path_to_archive: str, folder_path: str) -> str:
+
+	logger.debug("Запуск функции unzip_dir")
+
+	try:
+		with zipfile.ZipFile(path_to_archive, 'r') as file:
+			file.extractall(folder_path)
+	except Exception as err:
+		logger.critical(f"Не получилось разархивировать архив. {err}.")
+		exit()
+	else:
+		logger.success(f"Файл разархивирован по пути: {folder_path}")
+		return folder_path
