@@ -6,8 +6,9 @@
 """
 
 
-import os, zipfile
+import confs
 import vk_api
+import os, zipfile
 from loguru import logger
 
 
@@ -75,8 +76,31 @@ def unzip_dir(path_to_archive: str, folder_path: str) -> str:
 
 class TuchkaCore:
 	
-	def __init__(self) -> None:
-		pass
+	__cfg = None
+	__vk_api = None
+
+	def __init__(self, config_object: confs.Config) -> None:
+		
+		if type(config_object) != confs.Config:
+			logger.critical(f"Неверный тип аргумента config_object. Объект: {config_object}.")
+
+		self.cfg = config_object
+		
+		token = self.cfg.data.get('vk_api_token')
+
+		if not token:
+			logger.critical("В конфиге нет VKAPI токена.")
+			exit()
+		
+		status_code, api = get_vk_api(token = token)
+
+		if not status_code:
+			exit()
+		else:
+			self.__vk_api = api
+		
+		logger.success("Инициализация класса TuchkaCore произошла успешна.")
+
 
 	def _create_new_chat(self, title: str) -> None:
 		pass
