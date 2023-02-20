@@ -12,13 +12,16 @@ import os, zipfile
 from loguru import logger
 
 
+VK_MESSAGE_CONSTANT = 2000000000
+
+
 def get_vk_api(
 	login: str = None,
 	password: str = None,
 	token: str = None,
 	) -> tuple:
 
-	logger.debug("Запуск функции get_vk_api")
+	logger.debug("Запуск функции get_vk_api.")
 
 	vk_session = vk_api.VkApi(
 		login = login,
@@ -104,21 +107,85 @@ class TuchkaCore:
 
 	def _create_new_chat(self, title: str) -> int:
 
-		logger.debug(f"Запуск функции _create_new_chat с аргументами {title}.")
-
+		logger.debug(f"Запуск функции _create_new_chat с аргументами title={title}.")
+		
 		chat_id = self.__vk_api.messages.createChat(title = title)
 
 		logger.success(f"Чат с названием {title} успешно создан с chat_id={chat_id}.")
 
 		return chat_id
+	
+	def _get_chat_picture(self, peer_id: int) -> str:
+
+		logger.debug(f"Запуск функции _get_chat_picture с аргументами peer_id={peer_id}.")
+
+		vk_answer = self.__vk_api.messages.getChat(
+			chat_id = peer_id - VK_MESSAGE_CONSTANT,
+		)
+		
+		url_to_picture = vk_answer.get("photo_200")
+
+		logger.success(f"Успешна полученна ссылка на фото чата {peer_id}: {url_to_picture}.")
+
+		return url_to_picture
 
 	def _get_all_chats(self, with_pictures = False) -> list:
-		pass
+
+		"""
+			Возвращает list подобного типа: [
+				(
+					peer_id, chat_title, url_to_chat_pic
+				),
+				...,
+				...
+				]
+		"""
+
+		logger.debug(f"Запуск функции _get_all_chats с аргументами with_pictures={with_pictures}.")
+
+		chats = []
+
+		vk_answer = self.__vk_api.messages.getConversations(
+			count = 200, 
+			extended = 1
+		)
+
+		offset = 0
+		while vk_answer['items']:
+
+			for chat_info in vk_answer['items']:
+
+				if chat_info['conversation']['peer']['type'] not in ['user', 'group']:
+
+					chat_pic = None
+
+					if with_pictures:
+						chat_pic = self._get_chat_picture(
+							chat_info['conversation']['peer']['id']
+						)
+
+					chats.append(
+						(
+							chat_info['conversation']['peer']['id'],
+							chat_info['conversation']['chat_settings']['title'],
+							chat_pic
+						)
+					)
+
+			offset += len(vk_answer['items'])
+
+			vk_answer = self.__vk_api.messages.getConversations(
+				count = 200,
+				extended = 1,
+				offset = offset
+			)
+
+		logger.success(f"Успешно получена информация о всех чатах ({len(chats)}).")
+
+		return chats
+
 	
 	def _get_chat_title(self, peer_id: int) -> str:
-		pass
-
-	def _get_chat_picture(self, peer_id: int) -> str:
 		pass
 
 	def _search_chat(self, title: str) -> list:
@@ -129,3 +196,12 @@ class TuchkaCore:
 
 	def _get_history_attachments(self, peer_id: str) -> list:
 		pass
+
+
+if __name__ == "__main__":
+	cfg = confs.Config()
+	token = os.getenv("VK_TOKEN")
+	cfg.new_cfg(token, "12345")
+	t = TuchkaCore(cfg)
+	tt = t._get_all_chats("New Title123")
+	print(tt)
