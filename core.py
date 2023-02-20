@@ -186,7 +186,18 @@ class TuchkaCore:
 
 	
 	def _get_chat_title(self, peer_id: int) -> str:
-		pass
+
+		logger.debug(f"Запуск функции _get_chat_title с аргументами peer_id={peer_id}.")
+
+		vk_answer = self.__vk_api.messages.getChat(
+			chat_id = peer_id - VK_MESSAGE_CONSTANT,
+		)
+
+		chat_title = vk_answer['title']
+
+		logger.success(f"Успешно получено название чата `{chat_title}` для peer_id={peer_id}.")
+
+		return chat_title
 
 	def _search_chat(self, title: str) -> list:
 		pass
@@ -203,5 +214,5 @@ if __name__ == "__main__":
 	token = os.getenv("VK_TOKEN")
 	cfg.new_cfg(token, "12345")
 	t = TuchkaCore(cfg)
-	tt = t._get_all_chats("New Title123")
+	tt = t._get_chat_title(2000000004)
 	print(tt)
