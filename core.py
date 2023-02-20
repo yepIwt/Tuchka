@@ -213,7 +213,7 @@ class TuchkaCore:
 				]
 		"""
 		
-		logger.debug(f"Запуск функции _search_chat с аргументами title={title}")
+		logger.debug(f"Запуск функции _search_chat с аргументами title={title}.")
 
 		chats = []
 
@@ -254,11 +254,21 @@ class TuchkaCore:
 				offset = offset
 			)
 
-		logger.success(f"Успешно найдены чаты с названием `{title}`({len(chats)})")
+		logger.success(f"Успешно найдены чаты с названием `{title}`({len(chats)}).")
+
 		return chats
 
-	def _get_firstlast_name(self, uid) -> tuple:
-		pass
+	def _get_firstlast_name(self, user_id: int) -> tuple:
+		
+		logger.debug(f"Запуск функции _get_firstlast_name с аргументами user_id={user_id}.")
+		
+		vk_answer = self.__vk_api.users.get(user_ids = user_id)[0]
+
+		f, l = vk_answer['first_name'], vk_answer['last_name']
+
+		logger.success(f"Успешно получены данные о пользователе {user_id}: {f} {l}.")
+
+		return (f, l)
 
 	def _get_history_attachments(self, peer_id: str) -> list:
 		pass
@@ -269,5 +279,5 @@ if __name__ == "__main__":
 	token = os.getenv("VK_TOKEN")
 	cfg.new_cfg(token, "12345")
 	t = TuchkaCore(cfg)
-	tt = t._search_chat("Хак")
+	tt = t._get_firstlast_name(153798115)
 	print(tt)
