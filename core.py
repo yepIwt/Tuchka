@@ -71,3 +71,30 @@ def unzip_dir(path_to_archive: str, folder_path: str) -> str:
 	else:
 		logger.success(f"Файл разархивирован по пути: {folder_path}")
 		return folder_path
+
+
+class TuchkaCore:
+	
+	def __init__(self) -> None:
+		pass
+
+	def _create_new_chat(self, title: str) -> None:
+		pass
+
+	def _get_all_chats(self, with_pictures = False) -> list:
+		pass
+	
+	def _get_chat_title(self, peer_id: int) -> str:
+		pass
+
+	def _get_chat_picture(self, peer_id: int) -> str:
+		pass
+
+	def _search_chat(self, title: str) -> list:
+		pass
+
+	def _get_firstlast_name(self, uid) -> tuple:
+		pass
+
+	def _get_history_attachments(self, peer_id: str) -> list:
+		pass
