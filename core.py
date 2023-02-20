@@ -102,8 +102,15 @@ class TuchkaCore:
 		logger.success("Инициализация класса TuchkaCore произошла успешна.")
 
 
-	def _create_new_chat(self, title: str) -> None:
-		pass
+	def _create_new_chat(self, title: str) -> int:
+
+		logger.debug(f"Запуск функции _create_new_chat с аргументами {title}.")
+
+		chat_id = self.__vk_api.messages.createChat(title = title)
+
+		logger.success(f"Чат с названием {title} успешно создан с chat_id={chat_id}.")
+
+		return chat_id
 
 	def _get_all_chats(self, with_pictures = False) -> list:
 		pass
