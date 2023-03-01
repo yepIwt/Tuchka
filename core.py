@@ -8,7 +8,7 @@
 
 import confs
 import vk_api
-import os, zipfile
+import os, zipfile, string, random
 from loguru import logger
 
 
@@ -154,7 +154,7 @@ class TuchkaCore:
 				),
 				...,
 				...
-				]
+			]
 		"""
 
 		logger.debug(f"Запуск функции _get_all_chats с аргументами with_pictures={with_pictures}.")
@@ -210,7 +210,7 @@ class TuchkaCore:
 				),
 				...,
 				...
-				]
+			]
 		"""
 		
 		logger.debug(f"Запуск функции _search_chat с аргументами title={title}.")
@@ -270,8 +270,164 @@ class TuchkaCore:
 
 		return (f, l)
 
+	
+	def add_order_to_files(self, files, order):
+
+		finished_order = [] # Значит, что объект из очереди выгрузился в вк
+
+		for ordered in order:
+			for attachments in files:
+				if attachments[1] == ordered[1]:
+					finished_order.append(ordered)
+
+		new_order = list(set(order) - set(finished_order))
+
+		if new_order:
+			files = new_order + files
+		return files, new_order
+
 	def _get_history_attachments(self, peer_id: str) -> list:
-		pass
+		
+		"""
+			Возвращает list подобного типа: [
+				(
+					from_id, unix_date, url_to_file, commit_message
+				),
+				...,
+				...
+			]
+		"""
+
+		files = []
+
+		logger.debug(f"Запуск функции _get_history_attachments с аргументами peer_id={peer_id}.")
+		
+		answer = self.__vk_api.messages.getHistoryAttachments(
+			peer_id = peer_id,
+			media_type = "doc",
+			count = 200
+		)
+
+		while vk_answer['items']:
+
+			for file in vk_answer['items']:
+
+				message_id = file['message_id']
+
+				vk_answ = self.__vk_api.messages.getById(
+					message_ids = message_id
+				)
+
+				files.append(
+					(
+						file['from_id'],
+						file['attachment']['doc']['date'],
+						file['attachment']['doc']['url'],
+						vk_answ['items'][0]['text']
+					)
+				)
+
+			vk_answer = self.__vk_api.messages.getHistoryAttachments(
+				peer_id = peer_id,
+				media_type = "doc",
+				count = 200,
+				start_from = answer['next_from']
+			)
+
+		new_files, new_order = self.add_order_to_files(files, self.cfg.data['order'])
+
+		self.cfg.data['order'] = new_order
+		self.cfg.save()
+
+		return new_files
+
+	def __upload_file(self, file_path: str, peer_id: int) -> dict:
+		
+		"""
+			Загрузка файла в ВК в чат
+		"""
+
+		if os.access(file_path, os.R_OK):
+			
+			# Создаем имя файла
+
+			letters = string.ascii_lowercase + string.ascii_lowercase.capitalize()
+			file_title = ''.join(random.choice(letters) for i in range(10))
+
+			# Загружаем в ВК
+
+			f = open(file_path, 'rb')
+			up = vk_api.VkUpload(self.__vk_api)
+
+			file_data = up.document_message(
+				title = file_title,
+				doc = f,
+				peer_id = peer_id
+			)
+
+			return file_data
+
+		return {}
+
+	def __send_file_to_chat(self, file_data: dict, commit_message: str, chat_id: int):
+		
+		owner_id = file_data['doc']['owner_id']
+		file_id = file_data['doc']['id']
+
+		self.__vk_api.messages.send(
+			peer_id = chat_id,
+			message = commit_message,
+			attachment = f"doc{owner_id}_{file_id}",
+			random_id = vk_api.utils.get_random_id(),
+		)
+
+	def synchronization(self, chat_id: int, commit_message: str):
+
+		"""
+			Главный метод в Core. Создает релиз, шифрует и отправляет в вк
+		"""
+
+		# Ищем чат архива
+
+		for i in range(len(self.cfg.data['archives'])):
+			if self.cfg.data['archives'][i]['id'] == chat_id:
+				n = i
+				break
+
+		folder = self.cfg.data['archives'][n]['folder']
+
+		if not os.access(folder, os.R_OK):
+			os.mkdir(folder)
+
+		# Архивируем данные и шифруем их
+
+		path_to_archive = zip_dir(folder)
+		self.cfg.encrypt(path_to_archive)
+
+		# Отправляем в вк
+
+		file_data = self.__upload_file("encrypted", chat_id)
+		self.__send_file_to_chat(file_data, commit_message, chat_id)
+
+		# Очищаем кэш
+		os.remove("decrypted.zip")
+		os.remove("encrypted")
+
+		# Обновляем конфиги
+		self.cfg.data['archives'][n]['current'] = file_data['doc']['date']
+		self.cfg.save()
+
+		files = self._get_history_attachments(peer_id = chat_id)
+
+		answ = (
+			files,
+			file_data['doc']['date'],
+			file_data['doc']['owner_id'],
+			(file_data['doc']['url'],0),
+			commit_message
+		)
+
+		return answ
 
 
 if __name__ == "__main__":
