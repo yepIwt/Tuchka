@@ -7,8 +7,8 @@
 
 
 import confs
-import vk_api
-import os, zipfile, string, random
+import vk_api, requests
+import os, zipfile, string, random, shutil
 from loguru import logger
 
 
@@ -380,6 +380,28 @@ class TuchkaCore:
 			attachment = f"doc{owner_id}_{file_id}",
 			random_id = vk_api.utils.get_random_id(),
 		)
+	
+	def change_release(self, url_to_file: str, folder: str):
+
+		# Скачиваем файл
+		r = requests.get(url_to_file)
+		with open("encrypted", 'wb') as f:
+			f.write(r.content)
+
+		# Расшифровываем
+		self.cfg.decrypt("encrypted")
+		if not os.access(folder, os.R_OK):
+			os.mkdir(folder)
+		
+		# Удаляем старый релиз
+		shutil.rmtree(folder)
+
+		# Распаковываем релиз
+		unzip_dir("decrypted.zip", folder)
+
+		# Чистим кэш
+		os.remove("decrypted.zip")
+		os.remove("encrypted")
 
 	def synchronization(self, chat_id: int, commit_message: str):
 
