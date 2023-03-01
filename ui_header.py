@@ -1,5 +1,5 @@
 
-import confs
+import confs, core, shutil, os
 from PyQt5 import QtCore, QtWidgets, uic, QtGui
 
 
@@ -55,7 +55,7 @@ class ListArchivesView(QtWidgets.QMainWindow):
 		
 		# Init frontend
 		super(ListArchivesView, self).__init__()
-		uic.loadUi('screens/ListArchivesView.ui', self)
+		uic.loadUi("screens/ListArchivesView.ui", self)
 
 		# Init backend
 		self.save.clicked.connect(self.get_sel_chats)
@@ -126,6 +126,14 @@ class ListArchivesView(QtWidgets.QMainWindow):
 
 		# EndPoint
 		self.close()
+	
+	# Для переопределения в будущем
+	def go_to_archive_virtual(self, item):
+		pass
+	
+	def go_to_archive(self):
+		item = self.chats.selectedItems()[0]
+		self.go_to_archive_virtual(item)
 
 
 class ArchiveSettings(QtWidgets.QWidget):
@@ -135,7 +143,7 @@ class ArchiveSettings(QtWidgets.QWidget):
 
 		# Init frontend
 		super(ArchiveSettings, self).__init__()
-		uic.loadUi('screens/ArchiveSettings.ui', self)
+		uic.loadUi("screens/ArchiveSettings.ui", self)
 		self.FolderPath.setText(folder_path)
 
 		# Init backend
@@ -155,3 +163,151 @@ class ArchiveSettings(QtWidgets.QWidget):
 	
 	def reject(self):
 		self.close()
+
+
+class MainWindow(QtWidgets.QMainWindow):
+	
+	def __init__(self, pcore: core.TuchkaCore):
+		
+		# Init frontend
+		super(MainWindow, self).__init__()
+		uic.loadUi("screens/MainWindow.ui", self)
+
+		# Init backend
+		self.program_core = pcore
+
+		allarhives = []
+
+		for archive in self.program_core.cfg.data["archives"]:
+
+			title = self.program_core._get_chat_title(archive['id'])
+			allarhives.append(
+				(archive['id'], title, None, archive['current'])
+			)
+		
+		# Переопределение метода в классе ListArchivesView
+		list_ach = ListArchivesView(archives = allarhives)
+		list_ach.go_to_archive_virtual = self.open_archive
+		self.pages.addWidget(list_ach)
+
+		self.pages.setCurrentIndex(0)
+	
+	def __find_commits(self, chat_id: int, archive_attachemnts: list):
+
+		result = []
+
+		for fid, unix_time, url_to_file, commit_msg in archive_attachemnts:
+
+			f, l = self.program_core._get_firstlast_name(fid)
+
+			result.append(
+				[
+					"{} {}".format(f, l), commit_msg, url_to_file, unix_time, chat_id
+				]
+			)
+
+		return result
+
+	def __save_settings(self, chat_id: int, new_folder_path: str):
+		
+		# Ищем этот чат среди архивов
+
+		for i in range(len(self.program_core.cfg.data['archives'])):
+			if self.d.cfg.data['archives'][i]['id'] == chat_id:
+				n = i
+				break
+
+		try:
+			shutil.rmtree(self.program_core.cfg.data['archives'][n]['folder'])
+		except:
+			pass
+
+		if not os.access(new_folder_path, os.R_OK):
+			os.mkdir(new_folder_path)
+
+		self.program_core.cfg.data['archives'][n]['folder'] = new_folder_path
+		self.program_core.cfg.save()
+
+	def __open_settings(self, chat_id: int):
+
+		# Ищем этот чат среди архивов
+
+		n = 0
+		for i in range(len(self.program_core.cfg.data['archives'])):
+
+			if self.program_core.cfg.data['archives'][i]['id'] == chat_id:
+				n = i
+				break
+		
+		archive = self.program_core.cfg.data['archives'][n]		
+		
+
+		self.hwnd = ArchiveSettings(archive['id'], archive['folder'])
+		self.hwnd.setWindowTitle("Tuchka: Archive settings")
+		self.hwnd.setWindowIcon(QtGui.QIcon("screens/Icon.png"))
+		self.hwnd.accept_virtual = self.__save_settings
+		self.hwnd.show()
+	
+	def __update_releases(self, chat_id: int):
+
+		rels = self.program_core._get_history_attachments(chat_id)
+		commits = self.__find_commits(chat_id, rels)
+
+		return commits
+
+	def __change_release(self, attachment):
+
+		# Ищем этот чат среди архивов
+
+		for i in range(len(self.d.cfg.data['archives'])):
+			if self.d.cfg.data['archives'][i]['id'] == attachment[4]:
+				n = i
+				break
+
+
+		# Меняем current на выбранный unixtime
+
+		self.program_core.cfg.data['archives'][n]['current'] = attachment[3]
+		self.program_core.cfg.save()
+
+		self.program_core.change_release(
+			url_to_file = attachment[2][0],
+			folder = self.program_core.cfg.data['archives'][n]['folder']
+		)
+
+	def new_release(self, chat_id: int, commit_name: str):
+
+		new_releases, new_current, from_id, url_to_file, commit_message, = self.program_core.synchronization(chat_id, commit_name)
+
+		self.program_core.cfg.data['order'].append(
+			(
+				from_id,
+				new_current,
+				url_to_file,
+				commit_message
+			)
+		)
+
+		self.program_core.cfg.save()
+
+		new_releases_with_order, _ = self.d.add_order_to_files(new_releases, self.d.cfg.data['order'])
+		
+		commits = self.__find_commits(chat_id, new_releases_with_order)
+		
+		
+		return commits, new_current
+
+	
+	def open_archive(self, item):
+		
+		archive_releases = self.program_core._get_history_attachments(item.peer_id)
+		commits = self.__find_commits(item.peer_id, archive_releases)
+
+		SelectedArchive = ListArchivesView(item.text(), item.peer_id, item.current_release, commits)
+		SelectedArchive.go_change_release_virtual = self.change_release
+		SelectedArchive.settings_virtual = self.open_settings_for_chat_id
+		SelectedArchive.go_create_release_virtual = self.new_release
+		SelectedArchive.update_releases_virtual = self.__update_releases
+		self.pages.addWidget(SelectedArchive)
+
+		self.pages.setCurrentIndex(1)
