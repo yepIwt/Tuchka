@@ -126,3 +126,32 @@ class ListArchivesView(QtWidgets.QMainWindow):
 
 		# EndPoint
 		self.close()
+
+
+class ArchiveSettings(QtWidgets.QWidget):
+	
+
+	def __init__(self, chat_id: int, folder_path: str):
+
+		# Init frontend
+		super(ArchiveSettings, self).__init__()
+		uic.loadUi('screens/ArchiveSettings.ui', self)
+		self.FolderPath.setText(folder_path)
+
+		# Init backend
+		self.buttons.accepted.connect(self.accept)
+		self.buttons.rejected.connect(self.reject)
+		
+		self.chat_id = chat_id
+		self.new_foolder_path = folder_path
+	
+	def accept_virtual(self, chat_id, new_folder_name):
+		pass
+	
+	def accept(self):
+		self.new_foolder_path = self.FolderPath.text()
+		self.accept_virtual(self.chat_id, self.new_foolder_path)
+		self.close()
+	
+	def reject(self):
+		self.close()
